@@ -44,8 +44,16 @@ def seed_database(db: Session) -> None:
     for archive_id, title, kind, date, author, description, tags, text in ITEMS:
         item = ArchiveItem(archive_id=archive_id, title=title, type=kind, date=date, author_speaker=author, description=description, tags=tags, source=SOURCE, source_url=URL, extracted_text=text, verification_status="DEMO / NOT VERIFIED")
         db.add(item); db.flush(); lookup[archive_id] = item
-        for index, chunk in enumerate(chunk_text(text)):
-            db.add(DocumentChunk(archive_item_id=item.id, chunk_text=chunk, chunk_index=index, page_number=None, vector_metadata="fallback-keyword"))
+        for index, (page_number, chunk) in enumerate(chunk_text([(None, text)])):
+            db.add(
+                DocumentChunk(
+                archive_item_id=item.id,
+                chunk_text=chunk,
+                chunk_index=index,
+                page_number=page_number,
+                vector_metadata="fallback-keyword"
+                )
+            )
     for event_id, date, title, description, related in EVENTS:
         db.add(TimelineEvent(event_id=event_id, date=date, title=title, description=description, image="", verification_status="DEMO / NOT VERIFIED", archive_items=[lookup[key] for key in related]))
     db.commit()

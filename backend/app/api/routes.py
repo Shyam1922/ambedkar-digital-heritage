@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session, selectinload
 from app.db.database import get_db
-from app.models import ArchiveItem, TimelineEvent
-from app.schemas.archive import ArchiveItemOut, ArchiveListOut, ResearchRequest, ResearchResponse, SearchRequest, SearchResult, TimelineEventOut
+from app.models import ArchiveItem, DocumentChunk, TimelineEvent
+from app.schemas.archive import ArchiveItemOut, DocumentPageOut, ArchiveListOut, ResearchRequest, ResearchResponse, SearchRequest, SearchResult, TimelineEventOut
 from app.services.rag import research
 from app.services.retrieval import retrieve
+from app.services.ingestion import stitch_chunks
 
 router = APIRouter()
 
@@ -43,6 +44,54 @@ def archive_detail(archive_id: str, db: Session = Depends(get_db)):
     item = db.scalar(select(ArchiveItem).where(ArchiveItem.archive_id == archive_id))
     if not item: raise HTTPException(404, "Archive item not found")
     return archive_out(item)
+
+@router.get(
+    "/archive/{archive_id}/pages/{page_number}",
+    response_model=DocumentPageOut,
+)
+def archive_page(
+    archive_id: str,
+    page_number: int,
+    db: Session = Depends(get_db),
+):
+    item = db.scalar(
+        select(ArchiveItem).where(
+            ArchiveItem.archive_id == archive_id
+        )
+    )
+
+    if not item:
+        raise HTTPException(404, "Archive item not found")
+
+    total_pages = db.scalar(
+        select(func.count(func.distinct(DocumentChunk.page_number)))
+        .where(
+            DocumentChunk.archive_item_id == item.id,
+            DocumentChunk.page_number.is_not(None)
+        )
+    ) or 0
+
+    chunks = db.scalars(
+        select(DocumentChunk)
+        .where(
+            DocumentChunk.archive_item_id == item.id,
+            DocumentChunk.page_number == page_number,
+        )
+        .order_by(DocumentChunk.chunk_index)
+    ).all()
+
+    if not chunks:
+        raise HTTPException(404, "Page not found")
+
+    text = stitch_chunks([chunk.chunk_text for chunk in chunks])
+
+    return DocumentPageOut(
+        archive_id=item.archive_id,
+        title=item.title,
+        page_number=page_number,
+        total_pages=total_pages,
+        text=text,
+    )
 
 
 @router.get("/timeline", response_model=list[TimelineEventOut])

@@ -26,6 +26,13 @@ class ArchiveItemOut(BaseModel):
     extracted_text: str
     verification_status: str
 
+class DocumentPageOut(BaseModel):
+    archive_id: str
+    title: str
+    page_number: int
+    total_pages: int
+    text: str
+
 
 class ArchiveListOut(BaseModel):
     items: list[ArchiveItemOut]

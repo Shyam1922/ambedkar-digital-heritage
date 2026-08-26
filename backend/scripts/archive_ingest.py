@@ -37,7 +37,7 @@ DOCUMENTS = [
     },
     {
         "archive_id": "A-008", "pdf_path": Path("../data/raw/A-008/constitution_of_india_english.pdf"),
-        "title": "The Constitution of India (English-Kannada Edition)",
+        "title": "The Constitution of India ",
         "description": "Official consolidated edition of the Constitution of India.",
         "document_type": "Other", "date": "1949-11-26 (2025 edition)", "author_speaker": "Constituent Assembly of India",
         "source": "Ministry of Law and Justice, Government of India",

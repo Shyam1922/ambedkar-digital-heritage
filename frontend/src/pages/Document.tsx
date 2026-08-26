@@ -82,6 +82,10 @@ export function Document() {
                                 {pageData ? `Page ${pageData.page_number} of ${pageData.total_pages}` : 'Loading page…'}
                             </span>
 
+                            {pageData && pageData.original_page_number !== pageData.page_number ? (
+                                <small className="original-page">PDF page {pageData.original_page_number}</small>
+                            ) : null}
+
                             <button
                                 onClick={() =>
                                     setPage(p =>

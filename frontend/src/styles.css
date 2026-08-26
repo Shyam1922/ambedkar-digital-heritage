@@ -515,6 +515,11 @@ small {
     white-space: nowrap;
 }
 
+.page-controls .original-page {
+    margin-left: auto;
+    white-space: nowrap;
+}
+
 .page-error,
 .document-empty {
     margin: 0;

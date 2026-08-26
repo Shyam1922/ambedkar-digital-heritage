@@ -1,4 +1,4 @@
-from app.services.ingestion import chunk_text, stitch_chunks
+from app.services.ingestion import chunk_text, select_content_pages, stitch_chunks
 
 
 def test_chunk_text_stops_at_final_chunk_and_preserves_overlap():
@@ -21,3 +21,18 @@ def test_stitch_chunks_removes_retrieval_overlap_for_page_display():
     source = "The Conference was to meet at Easter, but was subsequently postponed."
     chunks = [(1, source[:52]), (1, source[32:])]
     assert stitch_chunks([chunk for _, chunk in chunks]) == source
+
+
+def test_select_content_pages_is_conservative_by_default():
+    pages = [(1, "cover"), (2, "publisher"), (3, "content")]
+    assert select_content_pages(pages) == pages
+
+
+def test_select_content_pages_keeps_original_numbers_after_exclusion():
+    pages = [(1, "cover"), (2, "publisher"), (3, "content"), (4, "contents"), (5, "article")]
+    assert select_content_pages(pages, content_start_page=1, excluded_pages={2, 4}) == [(1, "cover"), (3, "content"), (5, "article")]
+
+
+def test_select_content_pages_honours_content_start_page():
+    pages = [(1, "cover"), (2, "imprint"), (3, "article")]
+    assert select_content_pages(pages, content_start_page=3) == [(3, "article")]

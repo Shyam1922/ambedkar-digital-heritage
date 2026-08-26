@@ -139,6 +139,8 @@ def _ocr_page(
 
 def extract_text(
     path: Path,
+    content_start_page: int = 1,
+    excluded_pages: set[int] | None = None,
 ) -> list[tuple[int | None, str]]:
     """
     Extract text from TXT or PDF files.
@@ -152,6 +154,11 @@ def extract_text(
     # ---------------------------------------------------------
     # TXT
     # ---------------------------------------------------------
+
+    if content_start_page < 1:
+        raise ValueError("content_start_page must be at least 1")
+
+    excluded = excluded_pages or set()
 
     if path.suffix.lower() == ".txt":
         return [
@@ -181,6 +188,10 @@ def extract_text(
         )
 
         for page_number in range(1, total_pages + 1):
+
+            if page_number < content_start_page or page_number in excluded:
+                print(f"Skipping configured non-content page {page_number}/{total_pages}")
+                continue
 
             print(
                 f"Extracting page {page_number}/{total_pages}..."
@@ -245,6 +256,28 @@ def extract_text(
     raise ValueError(
         "Only TXT and PDF files are supported."
     )
+
+
+def select_content_pages(
+    pages: list[tuple[int | None, str]],
+    content_start_page: int = 1,
+    excluded_pages: set[int] | None = None,
+) -> list[tuple[int | None, str]]:
+    """Select meaningful reader pages while preserving original PDF numbers.
+
+    The default is deliberately conservative: every extracted page is kept.
+    Per-document settings may omit known cover, imprint, or contents pages.
+    """
+    if content_start_page < 1:
+        raise ValueError("content_start_page must be at least 1")
+
+    excluded = excluded_pages or set()
+    return [
+        (page_number, text)
+        for page_number, text in pages
+        if page_number is None
+        or (page_number >= content_start_page and page_number not in excluded)
+    ]
 
 
 def chunk_text(

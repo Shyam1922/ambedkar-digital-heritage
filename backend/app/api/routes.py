@@ -63,19 +63,27 @@ def archive_page(
     if not item:
         raise HTTPException(404, "Archive item not found")
 
-    total_pages = db.scalar(
-        select(func.count(func.distinct(DocumentChunk.page_number)))
+    original_pages = list(db.scalars(
+        select(DocumentChunk.page_number)
         .where(
             DocumentChunk.archive_item_id == item.id,
-            DocumentChunk.page_number.is_not(None)
+            DocumentChunk.page_number.is_not(None),
         )
-    ) or 0
+        .distinct()
+        .order_by(DocumentChunk.page_number)
+    ))
+
+    total_pages = len(original_pages)
+    if page_number < 1 or page_number > total_pages:
+        raise HTTPException(404, "Page not found")
+
+    original_page_number = original_pages[page_number - 1]
 
     chunks = db.scalars(
         select(DocumentChunk)
         .where(
             DocumentChunk.archive_item_id == item.id,
-            DocumentChunk.page_number == page_number,
+            DocumentChunk.page_number == original_page_number,
         )
         .order_by(DocumentChunk.chunk_index)
     ).all()
@@ -90,6 +98,7 @@ def archive_page(
         title=item.title,
         page_number=page_number,
         total_pages=total_pages,
+        original_page_number=original_page_number,
         text=text,
     )
 

@@ -5,6 +5,7 @@ export type DocumentPage = {
   title: string;
   page_number: number;
   total_pages: number;
+  original_page_number: number | null;
   text: string;
 }
 export type Event = {event_id:string; date:string; title:string; description:string; image:string; verification_status:string; related_archive_items:Item[]}

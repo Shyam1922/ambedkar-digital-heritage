@@ -4,7 +4,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.models import ArchiveItem, DocumentChunk
-from app.services.ingestion import extract_text, chunk_text
+from app.services.ingestion import chunk_text, extract_text, select_content_pages
 
 
 def ingest_document(
@@ -20,9 +20,20 @@ def ingest_document(
     source_url: str,
     tags: str = "",
     language: str = "English",
+    verification_status: str = "DEMO / NOT VERIFIED",
+    content_start_page: int = 1,
+    excluded_pages: set[int] | None = None,
 ) -> ArchiveItem:
 
-    pages = extract_text(pdf_path)
+    pages = select_content_pages(
+        extract_text(
+            pdf_path,
+            content_start_page=content_start_page,
+            excluded_pages=excluded_pages,
+        ),
+        content_start_page=content_start_page,
+        excluded_pages=excluded_pages,
+    )
 
     if not any(text.strip() for _, text in pages):
         raise ValueError(f"No text could be extracted from {pdf_path}")
@@ -53,7 +64,7 @@ def ingest_document(
             tags=tags,
             file_path=str(pdf_path),
             extracted_text=full_text,
-            verification_status="DEMO / NOT VERIFIED",
+            verification_status=verification_status,
         )
 
         db.add(item)
@@ -72,6 +83,7 @@ def ingest_document(
         item.source = source
         item.source_url = source_url
         item.tags = tags
+        item.verification_status = verification_status
         item.extracted_text = full_text
         item.file_path = str(pdf_path)
         db.execute(delete(DocumentChunk).where(DocumentChunk.archive_item_id == item.id))

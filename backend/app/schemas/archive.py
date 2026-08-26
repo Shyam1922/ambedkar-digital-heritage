@@ -31,6 +31,7 @@ class DocumentPageOut(BaseModel):
     title: str
     page_number: int
     total_pages: int
+    original_page_number: int | None = None
     text: str
 
 

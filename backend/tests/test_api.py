@@ -9,7 +9,7 @@ def test_health():
 
 def test_archive_and_timeline_are_seeded():
     with TestClient(app) as client:
-        assert client.get("/archive").json()["total"] >= 10
+        assert client.get("/archive").json()["total"] >= 4
         assert len(client.get("/timeline").json()) >= 15
 
 

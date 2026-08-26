@@ -26,7 +26,7 @@ def retrieve(db: Session, query: str, limit: int = 6, archive_id: str | None = N
     stmt = select(DocumentChunk).options(joinedload(DocumentChunk.archive_item))
     if archive_id:
         stmt = stmt.join(DocumentChunk.archive_item).where(ArchiveItem.archive_id == archive_id)
-    chunks = db.scalars(stmt).unique().all()
+    chunks = db.scalars(stmt).unique().yield_per(200)
     ranked: list[tuple[float, DocumentChunk]] = []
     for chunk in chunks:
         haystack = f"{chunk.archive_item.title} {chunk.archive_item.tags} {chunk.chunk_text}".lower()

@@ -11,19 +11,7 @@ STOPWORDS = {"the", "a", "an", "is", "are", "of", "and", "to", "in", "for", "on"
 def terms(text: str) -> set[str]:
     return {word for word in re.findall(r"[a-zA-Z]{3,}", text.lower()) if word not in STOPWORDS}
 
-def is_front_matter(text: str) -> bool:
-    text = text.lower()
 
-    markers = (
-        "table of contents",
-        "contents",
-        "index",
-        "preface",
-        "foreword",
-        "title page",
-    )
-
-    return any(marker in text for marker in markers)
 
 
 def citation(chunk: DocumentChunk) -> Citation:
@@ -41,6 +29,8 @@ def retrieve(db: Session, query: str, limit: int = 6, archive_id: str | None = N
     if archive_id:
         stmt = stmt.join(DocumentChunk.archive_item).where(ArchiveItem.archive_id == archive_id)
     chunks = db.scalars(stmt).unique().yield_per(200)
+
+    
     ranked: list[tuple[float, DocumentChunk]] = []
     for chunk in chunks:
 
@@ -67,8 +57,7 @@ def retrieve(db: Session, query: str, limit: int = 6, archive_id: str | None = N
 
             if term in title_terms:
                 score += 0.25
-        if is_front_matter(chunk.chunk_text):
-            continue
+        
         
         if score:
             ranked.append((score, chunk))

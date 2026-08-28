@@ -209,13 +209,14 @@ body{margin:0;background:#07090c;color:var(--text-primary);font-family:var(--fon
 .sec-label{flex:none;margin-top:10px}
 .sec-label h3{margin:0;color:var(--text-primary)}
 .sec-label .brass{height:2px;background:var(--accent-brass);margin-top:4px}
-.cats{flex:none;margin-top:6px;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:115px;gap:12px 24px}
+.cats{flex:none;margin-top:22px;display:grid;grid-template-columns:repeat(5,1fr);grid-auto-rows:170px;gap:12px 20px}
 .tile{background:var(--bg-surface);border:1px solid var(--brass-line-soft);border-radius:var(--r-card);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
   color:var(--text-primary);cursor:pointer;transition:transform .09s,background-color .09s,border-color .09s;position:relative}
 .tile:active{background:var(--action-subtle);border-color:var(--focus-line);transform:scale(.97)}
 .tile .ic{color:var(--accent-brass);height:56px;display:flex;align-items:center;justify-content:center}
-.tile .nm{font-weight:500;font-size:calc(18px*var(--ui-scale));letter-spacing:.02em;text-transform:uppercase}
+.tile .ct{margin-top:2px;font-size:calc(14px*var(--ui-scale));letter-spacing:.06em;color:var(--text-secondary)}
+.tile .nm{font-weight:500;font-size:calc(17px*var(--ui-scale));letter-spacing:.02em;text-transform:uppercase;text-align:center;padding:0 8px;line-height:1.25}
 .tile.dim{opacity:.45}
 .cloudslash{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;
   background:var(--overlay-strong);display:flex;align-items:center;justify-content:center;color:var(--accent-brass)}
@@ -464,43 +465,71 @@ body{margin:0;background:#07090c;color:var(--text-primary);font-family:var(--fon
 .excard .ebody{padding:12px 14px 14px}
 .excard .etitle{font-size:17px;font-weight:600;line-height:22px;color:var(--text-primary);margin:0 0 4px}
 .excard .etype{font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.03em}
-/* SCREEN: timeline (Prompt 7) */
-.tl-body{flex:1;min-height:0;position:relative}
-.axisrow{position:absolute;top:300px;left:32px;right:32px;height:64px;display:flex;align-items:center;gap:12px}
-.viewport{flex:1;min-width:0;position:relative;height:64px;overflow:hidden;cursor:grab}
-.track{position:absolute;top:0;left:0;height:100%}
-.track.anim{transition:transform .35s cubic-bezier(.22,.68,.24,1)}
-.axisline{position:absolute;left:0;right:0;top:32px;height:3px;background:var(--accent-brass)}
-.tick{position:absolute;top:20px;width:1px;height:14px;background:var(--border-strong)}
-.ticklabel{position:absolute;top:40px;transform:translateX(-50%);font-weight:500;font-size:14px;
-  letter-spacing:.05em;color:var(--text-muted);white-space:nowrap}
-.tnode{position:absolute;top:4px;width:56px;height:56px;border-radius:50%;transform:translateX(-28px);
-  cursor:pointer;display:flex;align-items:center;justify-content:center;border:none;z-index:2}
-.tnode.doc{background:var(--action-default)}
-.tnode.evt{background:var(--accent-brass)}
-.tnode.per{background:transparent;border:2.5px solid var(--text-primary)}
-.tnode.clu{background:var(--bg-raised);border:2.5px solid var(--accent-brass)}
-.tnode .cn{color:var(--accent-brass);font-weight:600;font-size:20px}
-.tcard{position:absolute;width:420px;background:var(--bg-raised);border:1px solid var(--border-strong);
-  border-radius:var(--r-card);box-shadow:var(--shadow-3);z-index:10;top:6px}
-.tcard .tconn{position:absolute;bottom:-26px;width:2px;height:26px;background:var(--border-strong)}
-.tcard .th{height:88px;background:var(--bg-surface);border-radius:var(--r-card) var(--r-card) 0 0;overflow:hidden}
-.tcard .th svg{width:100%;height:100%;display:block}
-.tcard .tb{padding:14px 18px}
-.tcard .tdate{display:block;margin-top:6px;color:var(--accent-brass)}
-.tcard .tdesc{margin:8px 0 0;color:var(--text-secondary);font-size:16px;line-height:23px}
-.tcard .topen{margin-top:12px;width:100%;height:56px;background:var(--action-default);color:var(--on-action);border:none;
-  border-radius:var(--r-card);font-family:var(--font-ui);font-weight:500;font-size:17px;cursor:pointer}
-.tlistrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 10px;border-radius:8px;cursor:pointer}
-.tlistrow:active{background:var(--action-subtle)}
-.erarow{position:absolute;left:0;right:0;top:424px;display:flex;justify-content:center;gap:14px;flex-wrap:wrap;padding:0 48px}
+/* SCREEN: timeline (Prompt 7) — vertical chronology + detail panel */
+.tl-body{flex:1;min-height:0;display:flex;flex-direction:column;padding:18px 48px 0}
+.tl-head{flex:none}
+.tl-head .eyebrow-t{color:var(--accent-brass);font-size:13px;font-weight:500;letter-spacing:.14em;text-transform:uppercase}
+:root[data-mode="light"] .tl-head .eyebrow-t{color:var(--text-secondary)}
+.tl-head h1{margin:4px 0 0;color:var(--text-primary)}
+.tl-head .sub{margin:2px 0 0;color:var(--text-secondary)}
+.tl-cols{flex:1;min-height:0;display:grid;grid-template-columns:520px 1fr;gap:28px;margin-top:14px}
+
+/* Left: the chronology. Scrolls, but with kiosk affordances — the whole
+   column is a drag surface and the position rail is 6px of brass, not a
+   hairline scrollbar nobody can hit at 70cm. */
+.tl-listwrap{position:relative;min-height:0;display:flex;gap:10px}
+.tl-scroll{flex:1;min-width:0;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;
+  touch-action:pan-y;cursor:grab;overscroll-behavior:contain}
+.tl-scroll::-webkit-scrollbar{display:none}
+.tl-scroll:active{cursor:grabbing}
+.tl-inner{position:relative;padding-left:30px}
+.tl-rail{position:absolute;left:0;top:16px;bottom:16px;width:2px;background:var(--brass-line-soft)}
+.tl-row{position:relative;display:block;width:100%;text-align:left;background:transparent;border:none;
+  border-radius:0 10px 10px 0;padding:15px 18px;cursor:pointer;font-family:var(--font-ui);
+  transition:background-color .09s}
+.tl-row:active{background:var(--action-subtle)}
+.tl-row.sel{background:var(--tint-brass)}
+.tl-row .ring{position:absolute;left:-37px;top:22px;width:16px;height:16px;border-radius:50%;
+  border:2px solid var(--accent-brass);background:var(--bg-base);box-sizing:border-box}
+.tl-row.sel .ring{background:var(--accent-brass)}
+.tl-row .ryear{display:block;font-family:var(--font-meta);font-size:15px;letter-spacing:.06em;color:var(--text-secondary)}
+.tl-row .rtitle{display:block;margin-top:3px;font-size:calc(21px*var(--ui-scale));
+  line-height:calc(28px*var(--ui-scale));font-weight:500;color:var(--text-primary)}
+/* Soft edges so a row sliced by the scroll boundary reads as "more below"
+   rather than as a broken layout. Same technique as the browse filter band. */
+.tl-fade{position:absolute;left:0;right:16px;height:24px;pointer-events:none;z-index:2}
+.tl-fade.top{top:0;background:linear-gradient(to bottom,var(--bg-base),var(--fade-out))}
+.tl-fade.bot{bottom:0;background:linear-gradient(to top,var(--bg-base),var(--fade-out))}
+.tl-pos{flex:none;width:6px;margin:16px 0;border-radius:3px;background:var(--rail-bg);position:relative}
+.tl-pos i{position:absolute;left:0;right:0;top:0;height:30%;border-radius:3px;background:var(--accent-brass)}
+
+/* Right: the selected event, and the records the backend links to it. */
+.tl-panel{min-height:0;overflow:hidden;background:var(--bg-surface);border:1px solid var(--brass-line-soft);
+  border-radius:var(--r-panel);padding:28px 32px;display:flex;flex-direction:column}
+.tl-panel .pdate{flex:none;font-family:var(--font-meta);font-size:16px;letter-spacing:.09em;color:var(--accent-brass)}
+.tl-panel h2{flex:none;margin:10px 0 0;color:var(--text-primary)}
+.tl-panel .pdesc{flex:none;margin:12px 0 0;color:var(--text-secondary)}
+.tl-panel .prel{flex:none;margin-top:auto;padding-top:20px;border-top:1px solid var(--brass-line-soft)}
+.tl-panel .prel h3{margin:0 0 14px;color:var(--text-primary)}
+.relcard{display:flex;align-items:center;gap:16px;width:100%;text-align:left;padding:12px;
+  border-radius:var(--r-card);background:var(--bg-raised);border:1px solid var(--border-hairline);
+  cursor:pointer;font-family:var(--font-ui);transition:transform .09s,background-color .09s}
+.relcard + .relcard{margin-top:10px}
+.relcard:active{background:var(--action-subtle);transform:scale(.99)}
+.relcard .rthumb{width:72px;height:72px;flex:none;border-radius:8px;overflow:hidden;background:var(--bg-base)}
+.relcard .rthumb svg{width:100%;height:100%;display:block}
+.relcard .rmeta{min-width:0;flex:1}
+.relcard .rt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  font-size:18px;line-height:23px;font-weight:500;color:var(--text-primary)}
+.relcard .rid{display:block;margin-top:4px;font-family:var(--font-meta);font-size:14px;
+  letter-spacing:.05em;color:var(--text-secondary)}
+
+.erarow{flex:none;display:flex;justify-content:center;gap:14px;flex-wrap:wrap;padding:14px 0}
 .era-pill{height:64px;padding:0 26px;border-radius:var(--r-pill);background:var(--bg-raised);
   border:1px solid var(--border-hairline);color:var(--text-secondary);font-family:var(--font-ui);
   font-weight:500;font-size:17px;cursor:pointer;transition:.09s}
+.era-pill:active{transform:scale(.97)}
 .era-pill.active{background:var(--action-subtle);border-color:var(--action-default);color:var(--text-primary)}
-.legend{position:absolute;left:48px;top:24px;display:flex;gap:22px;flex-wrap:wrap}
-.leg{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary)}
-.legd{width:14px;height:14px;border-radius:50%}
 
 /* SCREEN: related (Prompt 8) */
 .gcanvas{flex:1;min-height:0;position:relative}
@@ -590,6 +619,22 @@ body{margin:0;background:#07090c;color:var(--text-primary);font-family:var(--fon
 
 /* brass glyph on a raised key needs more weight than brass rules do */
 :root[data-mode="light"] .key-script{color:#6B5210}
+
+/* --- unverified state (verification_status !== 'VERIFIED') ---------------
+   Brass family, matching the system's rule that a non-confirmed state is
+   never red. Body colour is --text-secondary so contrast holds in light
+   mode, where brass-on-brass-tint measures only 2.9:1.                    */
+.chip-demo{background:var(--tint-brass);color:var(--text-secondary);border:1.5px solid var(--brass-line)}
+.mchip.demo{background:var(--tint-brass);color:var(--text-secondary);border:1.2px solid var(--brass-line)}
+.chip-sm.demo{background:var(--tint-brass);color:var(--text-secondary);border:1.2px solid var(--brass-line)}
+.chip-v.demo{background:var(--tint-brass);color:var(--text-secondary);border:1px solid var(--brass-line)}
+.tagline{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tagline .tg{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:999px;
+  background:var(--bg-raised);border:1px solid var(--border-hairline);color:var(--text-secondary);
+  font-size:14px;font-weight:500;letter-spacing:.02em}
+.chip-mode{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;margin-top:14px;
+  height:34px;padding:0 14px;border-radius:var(--r-pill);background:var(--bg-raised);
+  border:1px solid var(--border-hairline);color:var(--text-secondary);font-size:14px;font-weight:500}
 </style>
 
 <div class="reviewbar" id="reviewbar">
@@ -604,6 +649,7 @@ body{margin:0;background:#07090c;color:var(--text-primary);font-family:var(--fon
   <button class="rb-btn" data-go="related">Related</button>
   <button class="rb-btn" data-go="aiviewer">AI viewer</button>
   <span class="rb-sep"></span>
+  <button class="rb-btn" id="rbApi">API: connecting…</button>
   <button class="rb-btn" id="rbOffline">Offline: off</button>
   <button class="rb-btn" id="rbIdle">Idle timer: on</button>
   <button class="rb-btn" id="rbMode">Mode: dark</button>
@@ -625,72 +671,271 @@ body{margin:0;background:#07090c;color:var(--text-primary);font-family:var(--fon
 /* ============================================================
    DATA — one canonical set, shared by every screen
    ============================================================ */
-const ITEMS = [
-  {id:'aoc',      t:'Annihilation of Caste — Working Draft, Leaf 14', short:'Annihilation of Caste, Draft', cat:'Manuscripts', type:'Manuscript', date:'1935–1936', exact:'15 May 1936', year:1936, verified:true, art:'ms',
-   desc:'This leaf carries a revised passage on the origins of caste, annotated in the margin in Marathi. Two sentences are struck through and rewritten directly above the line — an editing pass visible nowhere in the printed 1936 edition, and one of the few surviving pages that shows the essay changing shape in the author’s own hand.',
-   meta:{Language:'English, Marathi marginalia',Period:'Late Colonial India',Location:'Institutional Archive',Provenance:'Ambedkar Trust, 1998'},
-   sig:'Marginal Marathi notes show the central metaphor being revised mid-sentence.'},
-  {id:'mahadcorr',t:'Mahad Satyagraha Correspondence', short:'Mahad Satyagraha Correspondence', cat:'Manuscripts', type:'Manuscript', date:'1927', exact:'20 March 1927', year:1927, verified:true, art:'crowd',
-   desc:'Letters exchanged in the weeks around the march to the Chavdar tank, including logistical notes and a draft of the resolution read aloud on the day.',
-   meta:{Language:'Marathi, English',Period:'Late Colonial India',Location:'Institutional Archive',Provenance:'Deposited 1998'},
-   sig:'The only record naming participants from outside the district.'},
-  {id:'canotes',  t:'Constituent Assembly Notes', short:'Constituent Assembly Notes', cat:'Documents', type:'Document', date:'1947', exact:'9 Dec 1946', year:1946, verified:true, ai:true, art:'ms',
-   desc:'Working notes taken during the drafting sessions, with an AI-assisted summary of recurring themes attached by the cataloguing team.',
-   meta:{Language:'English',Period:'Independence Era',Location:'Institutional Archive',Provenance:'Transferred 1998'},
-   sig:'Shows which clauses were revisited most often across the drafting period.'},
-  {id:'preamble', t:'Draft Preamble, Third Reading', short:'Draft Preamble, Third Reading', cat:'Documents', type:'Document', date:'1947', exact:'26 Nov 1947', year:1947, verified:true, art:'ms',
-   desc:'The Drafting Committee’s preamble as presented for a final reading, with three deletions still visible beneath the corrections.',
-   meta:{Language:'English',Period:'Independence Era',Location:'Institutional Archive',Provenance:'Transferred 1998'},
-   sig:'The phrase order in the opening line changed twice before this reading.'},
-  {id:'states',   t:'States and Minorities Folio', short:'States and Minorities Folio', cat:'Documents', type:'Document', date:'1947', exact:'1947', year:1947, verified:true, art:'ms',
-   desc:'A memorandum on constitutional safeguards for minorities, submitted to the Assembly and circulated in a small print run.',
-   meta:{Language:'English',Period:'Independence Era',Location:'Institutional Archive',Provenance:'Deposited 1998'},
-   sig:'Sets out safeguards later reflected, in altered form, in the final text.'},
-  {id:'columbia', t:'Correspondence, Columbia University', short:'Correspondence, Columbia University', cat:'Manuscripts', type:'Manuscript', date:'1913–16', exact:'1913–1916', year:1913, verified:true, art:'ms',
-   desc:'Letters written during graduate study in New York, covering coursework, finances and the terms of the scholarship that funded the journey.',
-   meta:{Language:'English',Period:'Late Colonial India',Location:'Institutional Archive',Provenance:'Family deposit, 1998'},
-   sig:'The earliest sustained body of correspondence in the collection.'},
-  {id:'bombaychron',t:'Letter to the Editor, Bombay Chronicle', short:'Letter to the Editor, Bombay Chronicle', cat:'Documents', type:'Document', date:'1927', exact:'April 1927', year:1927, verified:true, art:'ms',
-   desc:'A published response to press coverage of the Mahad march, clipped and preserved with a handwritten date in the upper margin.',
-   meta:{Language:'English',Period:'Late Colonial India',Location:'Institutional Archive',Provenance:'Press clipping file'},
-   sig:'One of the few contemporaneous public replies to the events at Mahad.'},
-  {id:'buddha',   t:'The Buddha and His Dhamma — Manuscript', short:'The Buddha and His Dhamma, MS', cat:'Manuscripts', type:'Manuscript', date:'1956', exact:'1956', year:1956, verified:true, ai:true, art:'ms',
-   desc:'Late manuscript pages prepared in the final year, with an AI-generated reading order proposed for the unnumbered leaves.',
-   meta:{Language:'English, Pali terms',Period:'Post-Independence',Location:'Institutional Archive',Provenance:'Deposited 1998'},
-   sig:'The unnumbered leaves have never been conclusively ordered.'},
-  {id:'visa',     t:'Waiting for a Visa', short:'Waiting for a Visa', cat:'Manuscripts', type:'Manuscript', date:'c.1935–36', exact:'c.1935–1936', year:1935, verified:true, art:'ms',
-   desc:'An autobiographical fragment recounting episodes of exclusion, written in a plain hand on ruled paper.',
-   meta:{Language:'English',Period:'Late Colonial India',Location:'Institutional Archive',Provenance:'Deposited 1998'},
-   sig:'Written for an audience that never received it in the author’s lifetime.'},
-  {id:'cadebates',t:'Constituent Assembly Debates, Vol. VII', short:'Constituent Assembly Debates, Vol. VII', cat:'Documents', type:'Document', date:'1947', exact:'1947', year:1947, verified:true, art:'ms',
-   desc:'The bound volume covering the November 1947 sittings, annotated in pencil throughout by a member of the drafting team.',
-   meta:{Language:'English',Period:'Independence Era',Location:'Institutional Archive',Provenance:'Transferred 1998'},
-   sig:'Pencil annotations mark the clauses that drew the longest debate.'},
-  {id:'rtc',      t:'Round Table Conference, London', short:'Round Table Conference Photograph', cat:'Photographs', type:'Photograph', date:'1930', exact:'12 Nov 1930', year:1930, verified:true, art:'crowd',
-   desc:'A group photograph taken on the opening day of the first session, with delegates identified on the reverse in two different hands.',
-   meta:{Language:'English captions',Period:'Late Colonial India',Location:'Institutional Archive',Provenance:'Press agency print'},
-   sig:'Two of the identifications on the reverse contradict each other.'},
-  {id:'rtcai',    t:'Round Table Conference — Imagined Arrival', short:'Round Table Conference, imagined arrival', cat:'Photographs', type:'AI Reconstruction', date:'1930', exact:'c.1930', year:1930, verified:false, aiPrimary:true, art:'aiscene',
-   desc:'A generated interpretation of the delegates’ arrival, produced from the verified photograph, the conference programme and contemporaneous press description.',
-   meta:{Language:'—',Period:'Late Colonial India',Location:'Generated asset',Provenance:'AI reconstruction, 2026'},
-   sig:'Generated for interpretation only — not evidence of the actual arrival.'},
-  {id:'rajgruhaai',t:'Rajgruha — Artist Reconstruction', short:'Rajgruha, artist reconstruction', cat:'Places', type:'AI Reconstruction', date:'c.1935', exact:'c.1935', year:1935, verified:false, aiPrimary:true, art:'aiscene',
-   desc:'A generated view of the library interior, based on floor plans, two surviving photographs and written descriptions of the shelving.',
-   meta:{Language:'—',Period:'Late Colonial India',Location:'Generated asset',Provenance:'AI reconstruction, 2026'},
-   sig:'Generated for interpretation only — proportions inferred, not measured.'}
-];
-const ITEM = id => ITEMS.find(i => i.id === id);
+/* ============================================================
+   DATA — the live FastAPI backend records (origin/main c58fe44)
+   Source: backend/app/services/seed.py, served as ArchiveItemOut
+   by GET /archive and GET /archive/{archive_id}.
 
+   Every field below is a real API field:
+     id → archive_id   t/short → title   cat/type → type
+     date/exact → date   author → author_speaker   lang → language
+     desc → description  tags → tags[]  text → extracted_text
+     vstatus → verification_status
+
+   `art`, `year` and `pdf` are the only additions. The backend
+   stores no imagery (image and file_path are empty), so the drawn
+   placeholder plates are kept purely to hold the layout. `year` is
+   parsed from `date` for the timeline axis. `pdf` records which six
+   items have an ingested source PDF under data/raw/.
+   ============================================================ */
+const SOURCE = 'Ambedkar.org / public archival texts';
+const SOURCE_URL = 'https://ambedkar.org/';
+const VSTATUS = 'DEMO / NOT VERIFIED';
+const AUTHOR = 'B. R. Ambedkar';
+
+const ITEMS = [
+  {id:'A-001', t:'Annihilation of Caste', cat:'Writing', type:'Writing', date:'1936', year:1936, art:'ms', pdf:false,
+   desc:'A public address prepared for the Jat-Pat-Todak Mandal.',
+   tags:['caste','equality','social reform'],
+   text:'Caste is not merely a division of labour. It is also a division of labourers. It is a hierarchy in which the divisions of labourers are graded one above the other. The real remedy for breaking Caste is intermarriage.'},
+
+  {id:'A-002', t:'The Buddha and His Dhamma', cat:'Book', type:'Book', date:'1957', year:1957, art:'ms', pdf:true,
+   desc:'A posthumously published account of the Buddha\'s life and teaching.',
+   tags:['buddhism','dhamma','equality'],
+   text:'The religion of the Buddha is morality. The Buddha\'s Dhamma teaches that morality is the essence of religion and that human welfare is its measure.'},
+
+  {id:'A-003', t:'Constituent Assembly: Objectives Resolution Debate', cat:'Constitutional Debate', type:'Constitutional Debate', date:'1946-12-17', year:1946, art:'crowd', pdf:true,
+   desc:'Intervention during deliberations on the Objectives Resolution.',
+   tags:['constitution','democracy','unity'],
+   text:'The resolution aims at creating a united India and a Constitution which will make India a united democratic country.'},
+
+  {id:'A-004', t:'Constituent Assembly: Final Speech', cat:'Constitutional Debate', type:'Constitutional Debate', date:'1949-11-25', year:1949, art:'crowd', pdf:false,
+   desc:'Closing speech before adoption of the Constitution.',
+   tags:['constitution','democracy','liberty','equality'],
+   text:'Political democracy cannot last unless there lies at the base of it social democracy. Social democracy means a way of life which recognises liberty, equality and fraternity as the principles of life.'},
+
+  {id:'A-005', t:'Speech at Mahad Satyagraha', cat:'Speech', type:'Speech', date:'1927', year:1927, art:'crowd', pdf:true,
+   desc:'Public mobilisation for equal access to water and civic rights.',
+   tags:['mahad','equality','civil rights'],
+   text:'We are not going to the Chavdar Tank to merely drink its water. We are going to the Tank to assert that we too are human beings like others.'},
+
+  {id:'A-006', t:'What Congress and Gandhi Have Done to the Untouchables', cat:'Book', type:'Book', date:'1945', year:1945, art:'ms', pdf:true,
+   desc:'A political analysis of representation and caste discrimination.',
+   tags:['representation','rights','untouchability'],
+   text:'The emancipation of the Untouchables depends upon their acquiring political power and upon safeguards that make equality effective.'},
+
+  {id:'A-007', t:'States and Minorities', cat:'Writing', type:'Writing', date:'1947', year:1947, art:'ms', pdf:false,
+   desc:'Memorandum proposing constitutional safeguards and economic democracy.',
+   tags:['minorities','constitution','economic democracy'],
+   text:'The purpose of a Constitution is not merely to create organs of the State but to secure conditions in which liberty and equality can be realised.'},
+
+  {id:'A-008', t:'The Problem of the Rupee', cat:'Book', type:'Book', date:'1923', year:1923, art:'ms', pdf:false,
+   desc:'Economic study submitted at the University of London.',
+   tags:['economics','currency','rupee'],
+   text:'Currency stability requires institutions and policy attentive to the value of money and the interests of the public.'},
+
+  {id:'A-009', t:'Castes in India: Their Mechanism, Genesis and Development', cat:'Article', type:'Article', date:'1916', year:1916, art:'ms', pdf:true,
+   desc:'Early academic paper on caste formation.',
+   tags:['caste','sociology','endogamy'],
+   text:'Endogamy is the only characteristic that is peculiar to caste and it is the key to understanding the mechanism of caste.'},
+
+  {id:'A-010', t:'Pakistan or the Partition of India', cat:'Book', type:'Book', date:'1940', year:1940, art:'ms', pdf:true,
+   desc:'Study of communal politics, constitutional arrangements and partition.',
+   tags:['politics','partition','minorities'],
+   text:'Constitutional arrangements must be judged by whether they protect minorities and permit a stable democratic order.'}
+];
+
+/* Derived from the API fields above — never hand-written, so the
+   detail metabox cannot drift from what GET /archive/{id} returns.
+   Mirrors the <dl> in frontend/src/pages/Document.tsx.            */
+ITEMS.forEach(i => {
+  i.short    = i.t;
+  i.exact    = i.date;
+  i.author   = AUTHOR;          /* author_speaker */
+  i.lang     = 'English';       /* language (model default) */
+  i.source   = SOURCE;
+  i.vstatus  = VSTATUS;         /* verification_status */
+  i.verified = false;           /* nothing in the archive is VERIFIED */
+  i.meta = {
+    'Author / speaker': i.author,
+    'Language': i.lang,
+    'Source': i.source,
+    'Archive ID': i.id
+  };
+});
+
+/* Forward-looking feature, kept deliberately: the AI visualisation
+   viewer has NO backend endpoint and no backing record. It is held
+   outside ITEMS so it never pollutes archive counts, browse pages
+   or search results — it is reachable only as its own screen.     */
+const AI_FEATURE = {
+  id:'AI-001', t:'Constituent Assembly, 1949 — AI Reconstruction', short:'Constituent Assembly, AI reconstruction',
+  cat:'—', type:'AI Reconstruction', date:'1949', exact:'c.1949', year:1949, art:'aiscene',
+  verified:false, aiPrimary:true, backendBacked:false, vstatus:'NO BACKEND RECORD',
+  author:'—', lang:'—', source:'Generated asset', tags:['ai','reconstruction'],
+  desc:'A generated interpretation of the Assembly chamber, produced from the archived debate records. No endpoint serves this — it is a design exploration, not MVP scope.',
+  text:'No extracted text is available for a generated asset.',
+  meta:{'Author / speaker':'—','Language':'—','Source':'Generated asset','Archive ID':'— (not in the archive)'}
+};
+
+const ITEM = id => ITEMS.find(i => i.id === id) || (AI_FEATURE.id === id ? AI_FEATURE : undefined);
+
+/* Backend stores dates as free strings ('1936', '1946-12-17').
+   Lossless display formatting only — no value is invented.        */
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function fmtDate(s){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
+  return m ? (+m[3]) + ' ' + MONTHS[+m[2]-1] + ' ' + m[1] : (s || '');
+}
+
+/* The eight invented heritage categories are gone. These are the
+   five distinct `type` values the API actually serves, and each
+   tile is exactly GET /archive?type=<id>.                         */
 const CATEGORIES = [
-  {id:'Manuscripts',icon:'ms'},{id:'Artefacts',icon:'artefact'},{id:'Photographs',icon:'photo'},
-  {id:'Documents',icon:'doc'},{id:'People',icon:'person'},{id:'Events',icon:'event'},
-  {id:'Memorials',icon:'memorial'},{id:'Places',icon:'place'}
+  {id:'Writing',icon:'ms'},{id:'Book',icon:'doc'},{id:'Constitutional Debate',icon:'event'},
+  {id:'Speech',icon:'person'},{id:'Article',icon:'list'}
 ];
 
 const STATE = {
   screen:'attract', params:{}, lang:'ENG', offline:false, idleOn:true,
-  a11y:{step:1, hc:false, height:0, mode:'dark'}, history:[]
+  a11y:{step:1, hc:false, height:0, mode:'dark'}, history:[],
+  /* live  — the archive service answered and ITEMS/TL_EVENTS came from it
+     forceOffline — review-bar switch that pretends the network is down
+     offline — what the UI shows: forceOffline || !live
+     total  — ArchiveListOut.total, so attract can stop guessing          */
+  live:false, forceOffline:false, total:null, apiError:''
 };
+
+/* ============================================================
+   BACKEND — live FastAPI service, embedded records as fallback
+   ============================================================
+   The records baked into ITEMS above are a transcription of the same
+   seed data this API serves, so a failed connection degrades to an
+   identical-looking archive rather than an empty screen. That is the
+   point: a museum kiosk on a Raspberry Pi cannot show an error page
+   because a network cable was kicked out.
+
+   Base URL, in order: ?api= query param, then localStorage
+   'heritage.api', then http://localhost:8000. The backend must list
+   this page's origin in FRONTEND_ORIGINS — including the literal
+   "null" if the file is opened straight from disk.
+   ============================================================ */
+const API = {
+  base: (() => {
+    try {
+      const q = new URLSearchParams(location.search).get('api');
+      if(q) return q.replace(/\/+$/,'');
+      const stored = localStorage.getItem('heritage.api');
+      if(stored) return stored.replace(/\/+$/,'');
+    } catch(e){ /* file:// with storage disabled */ }
+    return 'http://localhost:8000';
+  })(),
+  timeout: 5000,
+  call(path, options){
+    if(STATE.forceOffline) return Promise.reject(new Error('Offline mode is on'));
+    const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(()=>ctrl.abort(), API.timeout) : null;
+    const init = Object.assign({headers:{'Content-Type':'application/json'}}, options||{});
+    if(ctrl) init.signal = ctrl.signal;
+    return fetch(API.base + path, init).then(r => {
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).finally(()=>{ if(timer) clearTimeout(timer); });
+  },
+  get(p){ return API.call(p); },
+  post(p, body){ return API.call(p, {method:'POST', body: JSON.stringify(body)}); }
+};
+
+/* Everything below this line arrives from a server, so it is escaped once
+   here rather than trusted at eleven different interpolation points. `q`
+   keeps the unescaped text for search matching. */
+const ESC = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
+const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ESC[c]);
+const parseYear = d => { const m = /(\d{4})/.exec(d || ''); return m ? +m[1] : 0; };
+const ART_BY_TYPE = {'Constitutional Debate':'crowd','Speech':'crowd'};
+const ICON_BY_TYPE = {'Writing':'ms','Book':'doc','Constitutional Debate':'event','Speech':'person','Article':'list'};
+
+/* ArchiveItemOut → the shape every screen already reads. */
+function fromApi(a){
+  const tags = (a.tags || []).map(esc);
+  const item = {
+    id: esc(a.archive_id), t: esc(a.title), short: esc(a.title),
+    cat: esc(a.type), type: esc(a.type),
+    date: esc(a.date), exact: esc(a.date), year: parseYear(a.date),
+    desc: esc(a.description), tags: tags, text: esc(a.extracted_text),
+    author: esc(a.author_speaker), lang: esc(a.language),
+    source: esc(a.source), sourceUrl: esc(a.source_url),
+    vstatus: esc(a.verification_status),
+    verified: a.verification_status === 'VERIFIED',
+    art: ART_BY_TYPE[a.type] || 'ms',
+    q: ((a.title||'') + ' ' + (a.description||'') + ' ' + (a.tags||[]).join(' ')).toLowerCase()
+  };
+  item.meta = {
+    'Author / speaker': item.author, 'Language': item.lang,
+    'Source': item.source, 'Archive ID': item.id
+  };
+  return item;
+}
+
+/* The embedded records predate the API layer and have no `q`. */
+ITEMS.forEach(i => { i.q = (i.t + ' ' + i.desc + ' ' + i.tags.join(' ')).toLowerCase(); });
+
+function applyArchive(apiItems){
+  ITEMS.length = 0;
+  apiItems.map(fromApi).forEach(i => ITEMS.push(i));
+  /* Categories are the distinct `type` values actually served, so a new
+     type added to the backend appears here without a code change. */
+  CATEGORIES.length = 0;
+  ITEMS.forEach(i => {
+    if(!CATEGORIES.some(c => c.id === i.cat))
+      CATEGORIES.push({id: i.cat, icon: ICON_BY_TYPE[i.cat] || 'doc'});
+  });
+  const count = id => ITEMS.filter(i => i.cat === id).length;
+  CATEGORIES.sort((a,b) => count(b.id) - count(a.id) || a.id.localeCompare(b.id));
+  rebuildGraph();
+}
+
+/* TimelineEventOut[] → TL_EVENTS, related_archive_items → items[] */
+function applyTimeline(events){
+  TL_EVENTS.length = 0;
+  events.forEach(e => TL_EVENTS.push({
+    y: parseYear(e.date), t: esc(e.title), d: esc(e.date), b: esc(e.description),
+    items: (e.related_archive_items || []).map(i => esc(i.archive_id))
+  }));
+  TL_ERAS.length = 0;
+  TL_EVENTS.forEach(e => { const k = eraOf(e.y); if(TL_ERAS.indexOf(k) < 0) TL_ERAS.push(k); });
+  tlState.sel = 0; tlState.top = 0;
+}
+
+function apiBadge(){
+  const b = $('#rbApi'); if(!b) return;
+  const label = STATE.forceOffline ? 'API: forced offline'
+              : STATE.live ? 'API: live' : 'API: embedded copy';
+  b.textContent = label;
+  b.classList.toggle('active', STATE.live && !STATE.forceOffline);
+  b.title = STATE.live ? API.base : (STATE.apiError || 'Using the records built into this file');
+}
+
+/* Never blocks a screen: the kiosk paints from the embedded copy first,
+   then swaps in live data if the service answers. */
+function connect(){
+  return Promise.all([API.get('/archive'), API.get('/timeline')])
+    .then(([archive, timeline]) => {
+      applyArchive(archive.items);
+      applyTimeline(timeline);
+      STATE.total = archive.total;
+      STATE.live = true; STATE.apiError = '';
+    })
+    .catch(err => {
+      STATE.live = false;
+      STATE.apiError = (err && err.message) || 'unreachable';
+    })
+    .then(() => {
+      STATE.offline = STATE.forceOffline || !STATE.live;
+      apiBadge();
+      go(STATE.screen, STATE.params, {noHistory:true});
+    });
+}
 
 /* ============================================================
    art generators — shared placeholder imagery
@@ -888,8 +1133,8 @@ function langBadge(){
     `<button data-setlang="${l}" aria-pressed="${STATE.lang===l}">${l}</button>`).join('')+`</div>`;
 }
 SCREENS.home = () => {
-  const feat = ITEM('mahadcorr');
-  const offlineCats = ['Photographs','Events'];
+  const feat = ITEM('A-005') || ITEMS[0];
+  const offlineCats = ['Speech','Article'];
   return `
   <div class="hdr">
     <div class="wordmark">
@@ -904,10 +1149,10 @@ SCREENS.home = () => {
       <div class="art">${artFor(feat.art,700,278)}</div>
       <div class="txt">
         <div class="eyebrow-h">Featured · ${feat.type}</div>
-        <h2 class="t-display" style="font-size:calc(46px*var(--ui-scale));line-height:calc(54px*var(--ui-scale))">Mahad Satyagraha</h2>
+        <h2 class="t-display" style="font-size:calc(38px*var(--ui-scale));line-height:calc(46px*var(--ui-scale))">${feat.t}</h2>
         <p class="t-bodyl desc">${feat.desc}</p>
         <div class="actions">
-          <span class="chip chip-verified">${svg(IC.check,18,2.4)}Verified</span>
+          <span class="chip chip-demo">${svg(IC.info,18,1.8)}${feat.vstatus}</span>
           <button class="btn-primary" data-item="${feat.id}">Open</button>
         </div>
       </div>
@@ -918,6 +1163,7 @@ SCREENS.home = () => {
         const dim = STATE.offline && offlineCats.includes(c.id);
         return `<button class="tile ${dim?'dim':''}" data-cat="${c.id}">
           <span class="ic">${svg(IC[c.icon],52,1.4)}</span><span class="nm">${c.id}</span>
+          <span class="ct">${ITEMS.filter(i=>i.cat===c.id).length} ${ITEMS.filter(i=>i.cat===c.id).length===1?'item':'items'}</span>
           ${dim?`<span class="cloudslash">${svg(IC.cloudslash,14,2)}</span>`:''}
         </button>`;}).join('')}
     </div>
@@ -934,19 +1180,25 @@ SCREENS.home.mount = () => {
 /* ============================================================
    SCREEN: browse (Prompt 3)
    ============================================================ */
-const BROWSE_FILTERS = ['All','By period','By language','By person','By place'];
+/* Filters are real tag values. GET /archive?q=<tag> matches tags, so
+   every chip here is a query the API can actually answer. Some
+   type+tag combinations legitimately return nothing — that is what
+   now drives the empty state, instead of a hardcoded trigger.      */
+const BROWSE_FILTERS = ['All','caste','constitution','equality','minorities'];
 let browseState = {filter:'All', page:1};
 SCREENS.browse = (p) => {
-  const cat = p.cat || 'Manuscripts';
-  const pool = ITEMS.filter(i=>i.cat===cat);
-  const empty = browseState.filter==='By person';
+  const cat = p.cat || (CATEGORIES[0] && CATEGORIES[0].id) || 'Writing';
+  const byType = ITEMS.filter(i=>i.cat===cat);
+  const pool = browseState.filter==='All' ? byType
+             : byType.filter(i=>i.tags.some(t=>t.indexOf(browseState.filter)>=0));
+  const empty = pool.length===0;
   const totalPages = Math.max(1, Math.ceil(pool.length/8));
   const shown = pool.slice((browseState.page-1)*8, browseState.page*8);
-  const offlineDim = i => STATE.offline && (i.cat==='Photographs');
+  const offlineDim = i => STATE.offline && (i.cat==='Speech' || i.cat==='Article');
   return `
   <div class="bhdr">
     <button class="btn-icon" data-back aria-label="Back">${svg(IC.back,26,1.8)}</button>
-    <div class="hmeta"><h1 class="t-h1">${cat}</h1><span class="t-body count">${empty?0:pool.length} items</span></div>
+    <div class="hmeta"><h1 class="t-h1">${cat}</h1><span class="t-body count">${pool.length} items</span></div>
   </div>
   ${offlineBanner()}
   <div class="filterband">
@@ -964,7 +1216,7 @@ SCREENS.browse = (p) => {
       <path d="M40 78l14-16 10 10 8-9 10 15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>
     </svg>
     <h2 class="t-h2s">Nothing here yet</h2>
-    <p class="t-bodyl">This corner of the archive is still growing — new items are catalogued and added every month. Try another filter, or come back another day.</p>
+    <p class="t-bodyl">No record in this category carries that tag. The archive holds ten catalogued items in total — try another filter, or another category.</p>
     <button class="btn-secondary" data-clearfilter>Clear filters</button>
   </div></div>` : `
   <div class="gridwrap"><div class="bgrid">
@@ -972,12 +1224,12 @@ SCREENS.browse = (p) => {
       <div class="bcard ${i.aiPrimary?'ai-flagged':''} ${offlineDim(i)?'dim':''}" data-item="${i.id}">
         <div class="art">${artFor(i.art,278,104,ix)}
           <div class="badges">
-            ${i.verified?`<span class="mchip verified">${svg(IC.check,12,3)}Verified</span>`:''}
-            ${i.ai||i.aiPrimary?`<span class="mchip ai">${svg(IC.spark,12,1.8)}AI</span>`:''}
+            ${i.verified?`<span class="mchip verified">${svg(IC.check,12,3)}Verified</span>`
+              :`<span class="mchip demo">${svg(IC.info,12,2)}NOT VERIFIED</span>`}
           </div>
           ${offlineDim(i)?`<span class="cloudslash">${svg(IC.cloudslash,14,2)}</span>`:''}
         </div>
-        <div class="cbody"><p class="ctitle">${i.short}</p><span class="ctype">${i.type} · ${i.date}</span></div>
+        <div class="cbody"><p class="ctitle">${i.short}</p><span class="ctype">${i.type} · ${fmtDate(i.date)}</span></div>
       </div>`).join('')}
   </div></div>
   <div class="pagingband">
@@ -1002,12 +1254,60 @@ SCREENS.browse.mount = (p) => {
 /* ============================================================
    SCREEN: detail (Prompt 5)
    ============================================================ */
-const TRANSCRIPT_PAGES = [
-  ['It is not that I object to the mere fact of an integrated society.','My quarrel is as to the ideal which has governed the Hindu order, and which makes the outcastes bear the entire burden of protecting it.','The Hindu is enjoined to be good to his fellow Hindu, but he is not enjoined to be good to those outside the fold.'],
-  ['A caste has no feeling that it is affiliated to other castes, except when there is a Hindu-Muslim riot.','On all other occasions each caste seeks to segregate itself, and to distinguish itself from other castes.','(Marginal note, Marathi:) this line was rewritten twice — the printed edition softens the claim considerably.'],
-  ['Turn in any direction you like, caste is the monster that crosses your path.','You cannot have political reform, you cannot have economic reform, unless you kill this monster.','Leaf ends mid-sentence; the continuation is held in a separate folio not yet digitised.']
-];
-let detailState = {view:0, clamped:true, page:0, fontStep:1, playing:false, elapsed:0, timer:null, zoom:1};
+/* The transcript is the record's own extracted_text, split into pages
+   of two sentences. It is no longer one shared block of invented prose:
+   every item now shows its own text, and items with no text say so.
+   The live equivalent is GET /archive/{id}/pages/{n}; for the six
+   PDF-ingested items that endpoint serves real page numbers, and for
+   the rest the reference frontend falls back to extracted_text — which
+   is exactly what this reproduces.                                    */
+function trSplit(text){
+  const raw = (text || '').trim();
+  if(!raw) return ['No extracted text is available for this record.'];
+  return raw.split('. ').map((s,i,a) => i < a.length-1 ? s + '.' : s).filter(s => s.length);
+}
+function trPages(it){
+  const raw = (it && it.text) ? it.text.trim() : '';
+  if(!raw) return [['No extracted text is available for this record.']];
+  const parts = trSplit(raw), out = [];
+  for(let i=0;i<parts.length;i+=2) out.push(parts.slice(i,i+2));
+  return out.length ? out : [[raw]];
+}
+let detailState = {view:0, clamped:true, page:0, fontStep:1, playing:false, elapsed:0, timer:null,
+                   zoom:1, item:null, api:false, apiTotal:0, cache:{}, orig:{}};
+
+/* GET /archive/{id}/pages/{n} serves real pages only for records whose
+   chunks carry a page_number — i.e. the PDF-ingested ones. Seeded records
+   404 there, exactly as the reference frontend finds, so the drawer opens
+   on extracted_text immediately and upgrades itself only if page 1 exists.
+   Nothing is guessed from file_path, which is empty on every seeded row. */
+function trTotal(){ return detailState.api ? detailState.apiTotal : trPages(detailState.item).length; }
+function trSentences(){
+  if(!detailState.api) return trPages(detailState.item)[detailState.page] || [];
+  const t = detailState.cache[detailState.page + 1];
+  return t === undefined ? null : trSplit(t);
+}
+function trChipText(){
+  if(!detailState.api) return 'Extracted archival text · <b>catalogued transcript</b>';
+  const o = detailState.orig[detailState.page + 1];
+  return 'Extracted archival text · <b>from source PDF</b>' + (o ? ' · page ' + o : '');
+}
+function updateTrChip(){ const c = $('#trChip'); if(c) c.innerHTML = trChipText(); }
+function trLoadPage(n){
+  const it = detailState.item, id = it && it.id;
+  if(!id) return;
+  API.get('/archive/' + encodeURIComponent(id) + '/pages/' + n).then(p => {
+    if(detailState.item !== it) return;
+    detailState.cache[n] = p.text || '';
+    detailState.orig[n] = p.original_page_number;
+    detailState.apiTotal = p.total_pages;
+    renderTranscriptBody(); updateTrChip();
+  }).catch(() => {
+    if(detailState.item !== it) return;
+    detailState.api = false; detailState.cache = {};
+    renderTranscriptBody(); updateTrChip();
+  });
+}
 
 SCREENS.detail = (p) => {
   const it = ITEM(p.id) || ITEMS[0];
@@ -1025,11 +1325,11 @@ SCREENS.detail = (p) => {
     <div class="side-col">
       <div class="chiprow">
         <span class="chip chip-cat">${it.type}</span>
-        ${it.verified?`<span class="chip chip-verified">${svg(IC.check,18,2.4)}Verified</span>`:''}
-        ${it.ai?`<span class="chip chip-ai">${svg(IC.spark,18,1.7)}AI-assisted</span>`:''}
+        ${it.verified?`<span class="chip chip-verified">${svg(IC.check,18,2.4)}Verified</span>`
+          :`<span class="chip chip-demo">${svg(IC.info,18,1.8)}${it.vstatus}</span>`}
       </div>
       <h1 class="t-h1 d-title">${it.t}</h1>
-      <p class="t-bodyl d-byline">${it.type} · ${it.date}</p>
+      <p class="t-bodyl d-byline">${it.type} · ${fmtDate(it.date)}</p>
       <div>
         <p class="t-bodyl d-desc clamped" id="dDesc">${it.desc}</p>
         <button class="readmore" id="readMore">Read more ${svg('<path d="m6 9 6 6 6-6"/>',14,2.4)}</button>
@@ -1042,7 +1342,7 @@ SCREENS.detail = (p) => {
         <button class="action-btn" id="btnListen">${svg(IC.audio,24,1.7)}<span class="albl">Listen</span></button>
         <button class="action-btn" id="btnRelated">${svg(IC.graph,24,1.7)}<span class="albl">Related items</span></button>
       </div>
-      <div class="callout t-bodyl">${it.sig}</div>
+      <div class="callout tagline">${(it.tags||[]).map(t=>`<span class="tg">${t}</span>`).join('')}</div>
     </div>
   </div></div>
   ${navbar('')}`;
@@ -1054,6 +1354,10 @@ SCREENS.detail.mount = (p) => {
     b.classList.add('active');
     $('#mainImg').innerHTML = artFor(it.art,400,520,parseInt(b.dataset.view,10));
   }));
+  /* Backend descriptions are a single sentence, so the clamp usually has
+     nothing to hide. Only offer 'Read more' when the text is actually cut. */
+  const _dd=$('#dDesc'), _rm=$('#readMore');
+  if(_dd.scrollHeight <= _dd.clientHeight+1){ _rm.style.display='none'; _dd.classList.remove('clamped'); }
   $('#readMore').addEventListener('click', function(){
     const c = $('#dDesc').classList.toggle('clamped');
     this.innerHTML = c ? 'Read more '+svg('<path d="m6 9 6 6 6-6"/>',14,2.4) : 'Show less '+svg('<path d="m18 15-6-6-6 6"/>',14,2.4);
@@ -1069,25 +1373,35 @@ SCREENS.detail.mount = (p) => {
 function renderTranscriptBody(){
   const sizes=[19,22,26,30], lhs=[30,34,40,46], pcts=['86%','100%','118%','136%'];
   const el=$('#trText'); if(!el) return;
-  el.innerHTML = TRANSCRIPT_PAGES[detailState.page].map((s,i)=>`<span class="sent" data-i="${i}">${s} </span>`).join('');
+  const total = Math.max(1, trTotal());
+  if(detailState.page > total-1) detailState.page = total-1;
+  const sents = trSentences();
+  if(sents === null){
+    el.innerHTML = '<span class="sent">Loading page…</span>';
+    trLoadPage(detailState.page + 1);
+  } else {
+    el.innerHTML = sents.map((s,i)=>`<span class="sent" data-i="${i}">${s} </span>`).join('');
+  }
   el.style.fontSize=sizes[detailState.fontStep]+'px';
   el.style.lineHeight=lhs[detailState.fontStep]+'px';
   $('#stepLabel').textContent=pcts[detailState.fontStep];
   $('#stepDown').classList.toggle('is-disabled',detailState.fontStep===0);
   $('#stepUp').classList.toggle('is-disabled',detailState.fontStep===3);
-  $('#trPageLabel').textContent='Page '+(detailState.page+1)+' of '+TRANSCRIPT_PAGES.length;
+  $('#trPageLabel').textContent='Page '+(detailState.page+1)+' of '+total;
   $('#trPrev').classList.toggle('is-disabled',detailState.page===0);
-  $('#trNext').classList.toggle('is-disabled',detailState.page===TRANSCRIPT_PAGES.length-1);
+  $('#trNext').classList.toggle('is-disabled',detailState.page===total-1);
 }
 function openTranscript(it){
   if($('#drawer')) return;
+  detailState.item = it; detailState.page = 0;
+  detailState.api = false; detailState.apiTotal = 0; detailState.cache = {}; detailState.orig = {};
   overlaysEl.insertAdjacentHTML('beforeend',`
     <div class="ov-scrim" id="drScrim"></div>
     <div class="drawer" id="drawer">
       <div class="dr-head">
         <div class="dr-headrow"><h2 class="t-h2s" style="margin:0">Transcript</h2>
           <button class="btn-icon sm" id="drClose" aria-label="Close transcript">${svg(IC.close,22,1.8)}</button></div>
-        <span class="chip-ocr">Transcribed by <b>OCR</b> · reviewed by <b>archivist</b></span>
+        <span class="chip-ocr" id="trChip">Extracted archival text · <b>catalogued transcript</b></span>
       </div>
       <div class="stepper">
         <button class="step-btn" id="stepDown">A−</button>
@@ -1102,12 +1416,19 @@ function openTranscript(it){
       </div>
     </div>`);
   renderTranscriptBody();
+  /* opens on the embedded text, then upgrades if the service has pages */
+  API.get('/archive/' + encodeURIComponent(it.id) + '/pages/1').then(p => {
+    if(detailState.item !== it || !$('#drawer')) return;
+    detailState.api = true; detailState.apiTotal = p.total_pages || 1;
+    detailState.cache[1] = p.text || ''; detailState.orig[1] = p.original_page_number;
+    detailState.page = 0; renderTranscriptBody(); updateTrChip();
+  }).catch(()=>{ /* no pages for this record — extracted_text stands */ });
   $('#drClose').addEventListener('click',closeTranscript);
   $('#drScrim').addEventListener('click',closeTranscript);
   $('#stepDown').addEventListener('click',()=>{ if(detailState.fontStep>0){detailState.fontStep--;renderTranscriptBody();} });
   $('#stepUp').addEventListener('click',()=>{ if(detailState.fontStep<3){detailState.fontStep++;renderTranscriptBody();} });
-  $('#trPrev').addEventListener('click',()=>{ if(detailState.page>0){detailState.page--;renderTranscriptBody();} });
-  $('#trNext').addEventListener('click',()=>{ if(detailState.page<TRANSCRIPT_PAGES.length-1){detailState.page++;renderTranscriptBody();} });
+  $('#trPrev').addEventListener('click',()=>{ if(detailState.page>0){detailState.page--;renderTranscriptBody();updateTrChip();} });
+  $('#trNext').addEventListener('click',()=>{ if(detailState.page<trTotal()-1){detailState.page++;renderTranscriptBody();updateTrChip();} });
 }
 function closeTranscript(){ stopPlay(); ['drawer','drScrim'].forEach(id=>{const e=$('#'+id); if(e)e.remove();}); }
 
@@ -1137,8 +1458,9 @@ function startPlay(it){
     const f=$('#scrubFill'), t=$('#tEl');
     if(f) f.style.width=(detailState.elapsed/NARR_TOTAL*100)+'%';
     if(t) t.textContent=Math.floor(detailState.elapsed/60)+':'+String(detailState.elapsed%60).padStart(2,'0');
-    const per=NARR_TOTAL/TRANSCRIPT_PAGES[detailState.page].length;
-    const idx=Math.min(TRANSCRIPT_PAGES[detailState.page].length-1,Math.floor(detailState.elapsed/per));
+    const _pg=trSentences()||[];
+    const per=NARR_TOTAL/Math.max(1,_pg.length);
+    const idx=Math.min(_pg.length-1,Math.floor(detailState.elapsed/per));
     document.querySelectorAll('.sent').forEach(s=>s.classList.toggle('speaking',+s.dataset.i===idx));
     if(detailState.elapsed>=NARR_TOTAL) stopPlay();
   },1000);
@@ -1174,8 +1496,46 @@ function openExamine(it){
    ============================================================ */
 const KB_LATIN={r1:'Q W E R T Y U I O P'.split(' '),r2:'A S D F G H J K L'.split(' '),r3:'Z X C V B N M'.split(' ')};
 const KB_DEV={r1:'अ आ इ ई उ ऊ ए ऐ ओ औ'.split(' '),r2:'क ख ग घ च छ ज झ ट'.split(' '),r3:'त थ द न प म य'.split(' ')};
-let searchState={q:'',script:'latin'};
-const SUGGESTIONS=['Ambedkar','Constitution','Mahad Satyagraha','Palm-leaf manuscripts','1927','Rajgruha'];
+let searchState={q:'',script:'latin',hits:null,pending:false,timer:null,askMode:false};
+
+/* POST /search returns chunk-level citations, so several rows can point at
+   one record — deduped here, order preserved (the API sorts by score).
+   SearchRequest rejects anything under two characters, and a failure just
+   falls through to matching the records held locally. */
+function runSearch(){
+  clearTimeout(searchState.timer);
+  const q = searchState.q.trim();
+  if(q.length < 2){ searchState.hits = null; searchState.pending = false; return; }
+  searchState.timer = setTimeout(() => {
+    const asked = q;
+    searchState.pending = true; paintSearchState();
+    API.post('/search', {query: asked, limit: 20}).then(results => {
+      if(searchState.q.trim() !== asked) return;      /* stale response */
+      const seen = {}, ids = [];
+      results.forEach(r => {
+        const id = r.citation && r.citation.archive_id;
+        if(id && !seen[id]){ seen[id] = 1; ids.push(id); }
+      });
+      searchState.hits = ids.map(id => ITEM(id)).filter(Boolean);
+      searchState.pending = false;
+      go('search',{},{noHistory:true});
+    }).catch(() => {
+      if(searchState.q.trim() !== asked) return;
+      searchState.hits = null; searchState.pending = false;
+      go('search',{},{noHistory:true});
+    });
+  }, 260);
+}
+function paintSearchState(){
+  const el = $('#sSource'); if(el) el.textContent = searchLabel();
+}
+function searchLabel(){
+  if(searchState.pending) return 'Searching the archive service…';
+  if(searchState.hits) return 'Ranked by the archive service';
+  return STATE.offline ? 'Matched in the offline copy' : 'Matched in this kiosk';
+}
+/* Real tag values from the archive — each one returns results. */
+const SUGGESTIONS=['caste','constitution','equality','buddhism','minorities','rupee'];
 
 function kbRows(){
   const m = searchState.script==='dev'?KB_DEV:KB_LATIN, dv=searchState.script==='dev'?' dv':'';
@@ -1183,7 +1543,9 @@ function kbRows(){
 }
 SCREENS.search = () => {
   const q=searchState.q, hasQ=q.length>0;
-  const matches = ITEMS.filter(i=>i.t.toLowerCase().includes(q.toLowerCase()));
+  const nq = q.toLowerCase();
+  const local = ITEMS.filter(i => (i.q || '').includes(nq));
+  const matches = searchState.hits || local;
   const showing = matches.length?matches.slice(0,3):ITEMS.slice(0,3);
   const hi = t => { const ix=t.toLowerCase().indexOf(q.toLowerCase());
     return (!q||ix<0)?t:t.slice(0,ix)+'<mark>'+t.slice(ix,ix+q.length)+'</mark>'+t.slice(ix+q.length); };
@@ -1192,23 +1554,25 @@ SCREENS.search = () => {
     <button class="btn-icon" data-back aria-label="Close search">${svg(IC.close,24,1.8)}</button>
     <div class="searchbar">
       ${svg(IC.search,26,1.8)}
-      <div class="qwrap"><span class="qtext ${searchState.script==='dev'?'dev':''}">${q}</span><span class="caret"></span>${hasQ?'':'<span class="ph">Search the archive</span>'}</div>
+      <div class="qwrap"><span class="qtext ${searchState.script==='dev'?'dev':''}">${q}</span><span class="caret"></span>${hasQ?'':`<span class="ph">${searchState.askMode?'Type your question':'Search the archive'}</span>`}</div>
       <span class="mode-tag">${searchState.script==='dev'?'DEVANAGARI':'LATIN'}</span>
     </div>
   </div>
   <div class="s-content">
     ${hasQ ? `
-      ${matches.length?'':'<p style="font-family:var(--font-meta);font-size:11.5px;color:var(--text-muted);margin:0 0 8px">Showing sample results — no title match for this query</p>'}
+      <p style="font-family:var(--font-meta);font-size:11.5px;color:var(--text-secondary);margin:0 0 8px" id="sSource">${searchLabel()}</p>
+      ${matches.length?'':'<p class="t-caption" style="color:var(--text-secondary);margin:0 0 8px">Nothing in the archive matches that.</p>'}
       ${showing.map((i,ix)=>`
         <div class="rrow" data-item="${i.id}">
           <div class="rthumb">${artFor(i.art,80,80,ix)}</div>
           <div class="rmeta">
             <p class="t-h3 rtitle">${matches.length?hi(i.t):i.t}</p>
-            <span class="t-caption" style="color:var(--text-secondary)">${i.type} · ${i.date}</span>
+            <span class="t-caption" style="color:var(--text-secondary)">${i.type} · ${fmtDate(i.date)}</span>
           </div>
-          ${i.verified?`<span class="chip-sm">${svg(IC.check,14,3)}Verified</span>`:''}
+          ${i.verified?`<span class="chip-sm">${svg(IC.check,14,3)}Verified</span>`
+            :`<span class="chip-sm demo">${svg(IC.info,14,2)}${i.vstatus}</span>`}
         </div>`).join('')}
-      <button class="seeall" data-seeall>See all 47 results</button>
+      ${matches.length>3?`<button class="seeall" data-seeall>See all ${matches.length} results</button>`:''}
     ` : `
       <h3 class="t-h3" style="margin:0 0 20px">Try searching for</h3>
       <div class="pills">${SUGGESTIONS.map(s=>`<button class="s-pill" data-sq="${s}">${s}</button>`).join('')}</div>
@@ -1220,38 +1584,47 @@ SCREENS.search = () => {
       <button class="key-script" id="scriptKey">${searchState.script==='dev'?'A / अ':'अ / A'}</button>
       <button class="key-space" id="spaceKey">SPACE</button>
       <button class="key-back" id="backKey">${svg('<path d="M9 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4l7-7-7-7z"/><path d="M12 9l6 6M18 9l-6 6"/>',24,1.8)}</button>
-      <button class="key-search" id="searchKey">${svg(IC.search,18,2)}Search</button>
+      <button class="key-search" id="searchKey">${svg(searchState.askMode?IC.ask:IC.search,18,2)}${searchState.askMode?'Ask':'Search'}</button>
     </div>
   </div>`;
 };
 SCREENS.search.mount = () => {
   const re = () => go('search',{},{noHistory:true});
-  document.querySelectorAll('.key').forEach(k=>k.addEventListener('click',()=>{ searchState.q+=k.dataset.ch; re(); }));
-  document.querySelectorAll('[data-sq]').forEach(b=>b.addEventListener('click',()=>{ searchState.q=b.dataset.sq; re(); }));
-  $('#spaceKey').addEventListener('click',()=>{ searchState.q+=' '; re(); });
-  $('#backKey').addEventListener('click',()=>{ searchState.q=searchState.q.slice(0,-1); re(); });
+  document.querySelectorAll('.key').forEach(k=>k.addEventListener('click',()=>{ searchState.q+=k.dataset.ch; runSearch(); re(); }));
+  document.querySelectorAll('[data-sq]').forEach(b=>b.addEventListener('click',()=>{ searchState.q=b.dataset.sq; runSearch(); re(); }));
+  $('#spaceKey').addEventListener('click',()=>{ searchState.q+=' '; runSearch(); re(); });
+  $('#backKey').addEventListener('click',()=>{ searchState.q=searchState.q.slice(0,-1); runSearch(); re(); });
   $('#scriptKey').addEventListener('click',()=>{ searchState.script=searchState.script==='dev'?'latin':'dev'; re(); });
-  $('#searchKey').addEventListener('click',()=>toast('Searching the archive…'));
+  $('#searchKey').addEventListener('click',()=>{
+    const q = searchState.q.trim();
+    if(searchState.askMode){
+      if(q.length < 2){ toast('Type a question first'); return; }
+      searchState.askMode = false;
+      go('ask',{},{noHistory:true});
+      runAsk(q);
+      return;
+    }
+    runSearch(); toast('Searching the archive…');
+  });
   const sa=document.querySelector('[data-seeall]');
-  if(sa) sa.addEventListener('click',()=>go('browse',{cat:'Manuscripts'}));
+  if(sa) sa.addEventListener('click',()=>go('browse',{cat:(CATEGORIES[0]||{}).id}));
 };
 
 /* ============================================================
    SCREEN: ask (Prompt 6)
    ============================================================ */
-const QA = {
-  'Who was Dr. Ambedkar?':{grounded:true,
-    a:'Bhimrao Ramji Ambedkar (1891–1956) was a jurist, economist and social reformer who chaired the Constituent Assembly’s Drafting Committee and served as independent India’s first Law Minister.<span class="cite">1</span> Born into a family classified as untouchable under the caste system, he studied at Columbia University and the London School of Economics before returning to lead movements against caste discrimination, most visibly at the 1927 Mahad Satyagraha.<span class="cite">2</span> He is remembered above all as the principal architect of the Constitution of India.<span class="cite">3</span>',
-    src:['cadebates','mahadcorr','preamble']},
-  'What happened at Mahad in 1927?':{grounded:true,
-    a:'On 20 March 1927, Ambedkar led roughly ten thousand people to drink from the Chavdar Tank in Mahad, a public water source from which so-called untouchable communities were barred by custom.<span class="cite">1</span> The act was a deliberate, non-violent assertion of a civil right already granted by law but denied in practice.<span class="cite">2</span> Local opposition led to a ritual "purification" of the tank afterward, and a larger second satyagraha followed later that year.<span class="cite">3</span>',
-    src:['mahadcorr','bombaychron','states']},
-  'What manuscripts are in this collection?':{grounded:true,
-    a:'The archive holds working drafts and personal papers spanning four decades, including an early draft of Annihilation of Caste with handwritten Marathi marginalia, correspondence with Columbia University from Ambedkar’s student years, and Constituent Assembly notes from the drafting of the Constitution.<span class="cite">1</span> Several leaves carry visible editing passes absent from any printed edition.<span class="cite">2</span> Most are catalogued in English, with select passages in Marathi.<span class="cite">3</span>',
-    src:['aoc','canotes','columbia']},
-  'Show me items from the 1930s':{grounded:false}
-};
-let askState={view:'idle',q:'',timer:null};
+/* Answers now come from POST /research. These are only the starting
+   questions; the last one is deliberate — it is a filter request wearing a
+   question mark, and the retriever finds nothing for it, so the service
+   itself returns insufficient_information: true. Declining it is the
+   screen's whole thesis, and it is now the backend declining, not us. */
+const ASK_EXAMPLES = [
+  'What did Ambedkar say about caste and labour?',
+  'Why is social democracy necessary?',
+  'What happened at Mahad in 1927?',
+  'Show me items from the 1930s'
+];
+let askState={view:'idle',q:'',timer:null,answer:'',sources:[],mode:'',error:''};
 SCREENS.ask = () => `
   <div class="ask-stage">
     <div class="ask-view ${askState.view==='idle'?'active':''}" id="askIdle">
@@ -1260,8 +1633,8 @@ SCREENS.ask = () => `
         <path d="M22 30q13-3 22 3M22 42q13-3 22 3M22 54q13-3 22 3"/><path d="M78 30q-13-3-22 3M78 42q-13-3-22 3M78 54q-13-3-22 3"/>
         <g opacity=".5"><path d="M50 8v6M35 11l3 5M65 11l-3 5"/></g></svg>
       <h1 class="t-h1" style="margin:14px 0 0;text-align:center">Ask the archive</h1>
-      <p class="t-bodyl" style="margin:8px 0 0;color:var(--text-secondary);text-align:center">Answers come only from verified records in this collection.</p>
-      <div class="examples">${Object.keys(QA).map(q=>`<button class="exrow" data-q="${q}"><span>${q}</span>${svg(IC.fwd,20,1.8)}</button>`).join('')}</div>
+      <p class="t-bodyl" style="margin:8px 0 0;color:var(--text-secondary);text-align:center">Answers come only from records held in this collection.</p>
+      <div class="examples">${ASK_EXAMPLES.map(q=>`<button class="exrow" data-q="${q}"><span>${q}</span>${svg(IC.fwd,20,1.8)}</button>`).join('')}</div>
       <div class="askbar-row">
         <div class="askbar" data-openkb>${svg(IC.search,24,1.8)}<span>Type your question</span></div>
         <button class="btn-icon" id="micBtn">${svg(IC.mic,26,1.8)}</button>
@@ -1272,21 +1645,25 @@ SCREENS.ask = () => `
       <div class="stages">
         <div class="stg" id="stg1"><div class="dot">${svg(IC.check,12,3)}</div><span class="slabel">Searching the archive</span></div>
         <div class="conn" id="cn1"><div class="cf"></div></div>
-        <div class="stg" id="stg2"><div class="dot">${svg(IC.check,12,3)}</div><span class="slabel">Reading 6 records</span></div>
+        <div class="stg" id="stg2"><div class="dot">${svg(IC.check,12,3)}</div><span class="slabel">Reading the archive</span></div>
         <div class="conn" id="cn2"><div class="cf"></div></div>
         <div class="stg" id="stg3"><div class="dot">${svg(IC.check,12,3)}</div><span class="slabel">Composing answer</span></div>
       </div>
     </div>
     <div class="ask-view ask-body ${askState.view==='answer'?'active':''}" id="askAnswer"></div>
-    <div class="ask-view ${askState.view==='insufficient'?'active':''}" id="askInsufficient" style="justify-content:center">
+    <div class="ask-view ${askState.view==='insufficient'||askState.view==='error'?'active':''}" id="askInsufficient" style="justify-content:center">
       <div class="honest-panel">
+        ${askState.view==='error' ? `
+        <h2 class="t-h2s" style="margin:0">The archive service didn't answer</h2>
+        <p class="t-bodyl" style="margin:14px 0 0;color:var(--text-secondary);max-width:70ch">Questions need the research service, and it can't be reached right now. The collection itself is still readable — every record on this kiosk works offline.</p>`
+        : `
         <h2 class="t-h2s" style="margin:0">I don't have enough in this archive to answer that</h2>
-        <p class="t-bodyl" style="margin:14px 0 0;color:var(--text-secondary);max-width:70ch">This assistant only answers from verified institutional records, and won't guess at history to fill a gap. Try rephrasing as a specific question, or browse the collection directly.</p>
+        <p class="t-bodyl" style="margin:14px 0 0;color:var(--text-secondary);max-width:70ch">This assistant only answers from records held in this archive, and won't guess at history to fill a gap. Try rephrasing as a specific question, or browse the collection directly.</p>`}
         <div class="basedon" style="align-self:flex-start">You might explore instead</div>
         <div class="explore-row">
-          ${['mahadcorr','preamble','canotes'].map((id,ix)=>{const i=ITEM(id);
+          ${['A-001','A-004','A-005'].map(id=>ITEM(id)).filter(Boolean).concat(ITEMS).slice(0,3).map((i,ix)=>{const id=i.id;
             return `<div class="excard" data-item="${id}"><div class="ethumb">${artFor(i.art,280,110,ix+1)}</div>
-              <div class="ebody"><p class="etitle">${i.short}</p><span class="etype">${i.type} · ${i.date}</span></div></div>`;}).join('')}
+              <div class="ebody"><p class="etitle">${i.short}</p><span class="etype">${i.type} · ${fmtDate(i.date)}</span></div></div>`;}).join('')}
         </div>
         <button class="btn-secondary" style="margin-top:22px" data-askreset>Ask something else</button>
       </div>
@@ -1298,141 +1675,270 @@ SCREENS.ask.mount = () => {
   document.querySelectorAll('[data-askreset]').forEach(b=>b.addEventListener('click',()=>{
     askState.view='idle'; go('ask',{},{noHistory:true});
   }));
-  document.querySelectorAll('[data-openkb]').forEach(b=>b.addEventListener('click',()=>toast('Opens the on-screen keyboard — Search')));
-  const m=$('#micBtn'); if(m) m.addEventListener('click',()=>{ toast('Listening…'); setTimeout(()=>runAsk('Who was Dr. Ambedkar?'),900); });
+  document.querySelectorAll('[data-openkb]').forEach(b=>b.addEventListener('click',()=>{
+    searchState.askMode=true; searchState.q=''; searchState.hits=null; go('search');
+  }));
+  const m=$('#micBtn'); if(m) m.addEventListener('click',()=>{ toast('Listening…'); setTimeout(()=>runAsk(ASK_EXAMPLES[0]),900); });
   if(askState.view==='answer') renderAskAnswer();
 };
+/* ResearchResponse.answer is plain text — escaped, then split on blank
+   lines. In extractive-fallback mode those blocks are literal archive
+   passages, which is why the mode is stated rather than hidden. */
 function renderAskAnswer(){
-  const d=QA[askState.q]; const el=$('#askAnswer'); if(!d||!el) return;
+  const el=$('#askAnswer'); if(!el) return;
+  const paras = esc(askState.answer).split(/\n\s*\n/).filter(s=>s.trim().length);
+  const modeLabel = askState.mode === 'openai-compatible-rag'
+    ? 'Composed by a language model from the passages below'
+    : 'Passages quoted directly from the archive — no model involved';
+  const seen = {}, cites = [];
+  (askState.sources||[]).forEach(c => {
+    if(!c || !c.archive_id || seen[c.archive_id]) return;
+    seen[c.archive_id] = 1;
+    cites.push({id: esc(c.archive_id), item: ITEM(c.archive_id), title: esc(c.title)});
+  });
   el.innerHTML=`
-    <h2 class="t-h2s" style="margin:0;max-width:900px">“${askState.q}”</h2>
-    <p class="t-bodyl" style="margin:18px 0 0;max-width:860px">${d.a}</p>
-    <div class="basedon">Based on these records</div>
-    <div class="srcrow">${d.src.map((id,ix)=>{const i=ITEM(id);
-      return `<div class="srccard" data-item="${id}"><div class="sthumb">${artFor(i.art,240,96,ix)}</div>
-        <div class="sbody"><p class="stitle">${i.short}</p><span class="chip-v">${svg(IC.check,11,3)}Verified</span></div></div>`;}).join('')}</div>
+    <h2 class="t-h2s" style="margin:0;max-width:900px">“${esc(askState.q)}”</h2>
+    <span class="chip-mode">${svg(IC.info,14,2)}${modeLabel}</span>
+    ${paras.map(p=>`<p class="t-bodyl" style="margin:14px 0 0;max-width:860px">${p}</p>`).join('')}
+    ${cites.length?`<div class="basedon">Based on these records</div>
+    <div class="srcrow">${cites.map((c,ix)=>`
+      <div class="srccard" data-item="${c.id}">
+        <div class="sthumb">${artFor(c.item?c.item.art:'ms',240,96,ix)}</div>
+        <div class="sbody"><p class="stitle">${c.item?c.item.short:c.title}</p>
+        <span class="chip-v demo">${svg(IC.info,11,2)}${c.item?c.item.vstatus:'NOT VERIFIED'}</span></div>
+      </div>`).join('')}</div>`:''}
     <button class="btn-secondary" style="margin-top:22px;align-self:flex-start" data-askreset>Ask another question</button>`;
   el.querySelectorAll('[data-askreset]').forEach(b=>b.addEventListener('click',()=>{ askState.view='idle'; go('ask',{},{noHistory:true}); }));
 }
 function runAsk(q){
-  askState.q=q; askState.view='thinking'; go('ask',{},{noHistory:true});
+  askState.q=q; askState.view='thinking';
+  askState.answer=''; askState.sources=[]; askState.mode=''; askState.error='';
+  go('ask',{},{noHistory:true});
+
+  /* The stage animation and the request run together: whichever finishes
+     last decides when the answer appears, so the reader always sees the
+     three stages complete rather than a result flashing past them. */
+  let replied=false, staged=false, result=null, failed=null;
+  const settle=()=>{
+    if(!replied || !staged) return;
+    if(failed){ askState.error=failed.message||'unreachable'; askState.view='error'; }
+    else if(result.insufficient_information){ askState.view='insufficient'; }
+    else {
+      askState.answer=result.answer||''; askState.sources=result.sources||[];
+      askState.mode=result.mode||''; askState.view='answer';
+    }
+    go('ask',{},{noHistory:true});
+  };
+
+  API.post('/research',{query:q,limit:5})
+    .then(r=>{ result=r; }, e=>{ failed=e; })
+    .then(()=>{ replied=true; settle(); });
+
   const steps=[
     ()=>$('#stg1').classList.add('active'),
     ()=>{$('#stg1').classList.replace('active','done');$('#cn1').classList.add('on');$('#stg2').classList.add('active');},
     ()=>{$('#stg2').classList.replace('active','done');$('#cn2').classList.add('on');$('#stg3').classList.add('active');},
     ()=>$('#stg3').classList.replace('active','done'),
-    ()=>{ askState.view = QA[q].grounded?'answer':'insufficient'; go('ask',{},{noHistory:true}); }
+    ()=>{ staged=true; settle(); }
   ];
   let i=0; clearTimeout(askState.timer);
-  (function next(){ if(i<steps.length && $('#askThinking')){ steps[i](); i++; askState.timer=setTimeout(next,620); } })();
+  (function next(){ if(i<steps.length && $('#askThinking')){ steps[i](); i++; askState.timer=setTimeout(next,460); }
+    else if(i>=steps.length){ /* done */ }
+    else { staged=true; settle(); } })();
 }
 /* ============================================================
    SCREEN: timeline (Prompt 7)
    ============================================================ */
-const ERAS=['Pre-1900','1900s','1910s','1920s','1930s','1940s','1950s'];
-const ERA_S=[1885,1900,1910,1920,1930,1940,1950], ERA_E=[1900,1910,1920,1930,1940,1950,1960], ERA_W=200;
+/* GET /timeline → TimelineEventOut, all sixteen events from
+   backend/app/services/seed.py. `items` mirrors related_archive_items,
+   which is a list on the API even though every seeded event links to
+   exactly one record.
+
+   No node colouring: TimelineEventOut carries no type field, so there is
+   nothing to key a Document / Event distinction off. The horizontal axis
+   and its clustering are gone — clustering only ever existed to stop
+   nodes colliding on a 1400px axis, and a vertical list cannot collide. */
 const TL_EVENTS=[
-  {y:1891,t:'Birth, Mhow Cantonment',k:'per',d:'14 April 1891',b:'Born into a Mahar family in the British Indian Army cantonment town of Mhow.'},
-  {y:1913,t:'Departs for Columbia University',k:'evt',d:'July 1913',b:'Travels to New York on a Baroda State scholarship.',item:'columbia'},
-  {y:1923,t:'Bahishkrit Hitakarini Sabha founded',k:'evt',d:'20 July 1923',b:'An organisation dedicated to spreading education among the depressed classes.'},
-  {y:1927,t:'Mahad Satyagraha',k:'evt',d:'20 March 1927',b:'Leads a march asserting public water rights at the Chavdar Tank.',item:'mahadcorr'},
-  {y:1930,t:'First Round Table Conference',k:'evt',d:'12 Nov 1930',b:'Represents the depressed classes at constitutional talks in London.',item:'rtc'},
-  {y:1936,t:'Annihilation of Caste, published',k:'doc',d:'15 May 1936',b:'An undelivered address, printed as a standalone pamphlet.',item:'aoc'},
-  {y:1942,t:'Scheduled Castes Federation founded',k:'evt',d:'July 1942',b:'Forms a new political party to represent scheduled caste interests.'},
-  {y:1946,t:'Constituent Assembly Debates begin',k:'doc',d:'9 Dec 1946',b:'Debate on the shape of the new Constitution opens in Delhi.',item:'cadebates',g:'const'},
-  {y:1947,t:'Draft Preamble, Third Reading',k:'doc',d:'26 Nov 1947',b:'The Drafting Committee presents its preamble for a final reading.',item:'preamble',g:'const'},
-  {y:1947,t:'States and Minorities Folio',k:'doc',d:'1947',b:'Memorandum on constitutional safeguards for minorities.',item:'states',g:'const'},
-  {y:1950,t:'Constitution of India adopted',k:'evt',d:'26 Jan 1950',b:'India is declared a sovereign republic.'},
-  {y:1956,t:'Conversion to Buddhism, Nagpur',k:'per',d:'14 Oct 1956',b:'Converts with several hundred thousand followers at a public ceremony.',g:'end'},
-  {y:1956,t:'Death, New Delhi',k:'per',d:'6 Dec 1956',b:'Dies at his home in Delhi, six weeks after the conversion ceremony.',g:'end'}
+  {y:1891,t:'Birth in Mhow',d:'1891-04-14',b:'B. R. Ambedkar was born in Mhow, Central Provinces.',items:['A-009']},
+  {y:1913,t:'Studies at Columbia University',d:'1913',b:'Ambedkar began graduate study in the United States.',items:['A-009']},
+  {y:1916,t:'Castes in India paper',d:'1916',b:'He presented his paper on caste formation.',items:['A-009']},
+  {y:1923,t:'The Problem of the Rupee',d:'1923',b:'His economic study was published.',items:['A-008']},
+  {y:1927,t:'Mahad Satyagraha',d:'1927',b:'Campaign for equal access to public water.',items:['A-005']},
+  {y:1930,t:'Round Table Conference',d:'1930',b:'Ambedkar represented the Depressed Classes in London.',items:['A-006']},
+  {y:1932,t:'Poona Pact',d:'1932',b:'Agreement concerning political representation for Depressed Classes.',items:['A-006']},
+  {y:1935,t:'Yeola declaration',d:'1935',b:'Ambedkar announced his intention to leave Hinduism.',items:['A-001']},
+  {y:1936,t:'Annihilation of Caste',d:'1936',b:'The prepared address was published as a book.',items:['A-001']},
+  {y:1942,t:'Viceroy\'s Executive Council',d:'1942',b:'Ambedkar served as Labour Member.',items:['A-006']},
+  {y:1946,t:'Constituent Assembly',d:'1946',b:'He entered the Constituent Assembly debates.',items:['A-003']},
+  {y:1947,t:'Drafting Committee',d:'1947-08-29',b:'Ambedkar was appointed chairman of the Drafting Committee.',items:['A-007']},
+  {y:1949,t:'Constitution adopted',d:'1949-11-26',b:'The Constituent Assembly adopted the Constitution of India.',items:['A-004']},
+  {y:1951,t:'Resignation from Cabinet',d:'1951',b:'Ambedkar resigned as Law Minister.',items:['A-007']},
+  {y:1956,t:'Conversion at Nagpur',d:'1956-10-14',b:'Ambedkar embraced Buddhism with followers at Nagpur.',items:['A-002']},
+  {y:1956,t:'Death in Delhi',d:'1956-12-06',b:'B. R. Ambedkar died in Delhi.',items:['A-002']}
 ];
-function yearX(y){ for(let i=0;i<ERAS.length;i++){ if(y>=ERA_S[i]&&y<=ERA_E[i]) return i*ERA_W+((y-ERA_S[i])/(ERA_E[i]-ERA_S[i]))*ERA_W; } return 0; }
-const TL_NODES=(()=>{ const groups={},out=[];
-  TL_EVENTS.forEach(e=>{ if(e.g){ (groups[e.g]=groups[e.g]||[]).push(e); } else out.push({type:'s',x:yearX(e.y),item:e}); });
-  Object.values(groups).forEach(items=>out.push({type:'c',x:items.reduce((s,e)=>s+yearX(e.y),0)/items.length,items}));
-  return out; })();
-let tlPan=0;
+
+/* Eras are derived from the events themselves, so a decade with no
+   record never gets a pill that jumps nowhere (the 1900s, here). */
+const eraOf = y => y < 1900 ? 'Pre-1900' : (Math.floor(y/10)*10) + 's';
+const TL_ERAS = (() => { const out=[]; TL_EVENTS.forEach(e=>{ const k=eraOf(e.y); if(out.indexOf(k)<0) out.push(k); }); return out; })();
+
+let tlState = {sel:0, top:0, tween:null, jumping:false};
+
+/* CSS scroll-behavior:smooth stalls after ~10px inside the scaled kiosk
+   frame and never completes, so era jumps are tweened here instead.
+   setTimeout, not requestAnimationFrame — rAF is dead in a backgrounded
+   tab, which is the same trap the state sequencing hit earlier. */
+function tlScrollTo(sc, target, done){
+  const max = sc.scrollHeight - sc.clientHeight;
+  const to = Math.max(0, Math.min(max, target));
+  const from = sc.scrollTop, dist = to - from, steps = 14;
+  clearTimeout(tlState.tween);
+  if(Math.abs(dist) < 2){ sc.scrollTop = to; if(done) done(); return; }
+  let i = 0;
+  (function step(){
+    i++;
+    const p = i/steps;
+    sc.scrollTop = from + dist * (1 - Math.pow(1-p, 3));
+    if(i < steps) tlState.tween = setTimeout(step, 16);
+    else if(done) done();
+  })();
+}
+
+function tlPanelHTML(e){
+  const rel = (e.items||[]).map(id=>ITEM(id)).filter(Boolean);
+  return `
+    <div class="pdate">${fmtDate(e.d)}</div>
+    <h2 class="t-h2s">${e.t}</h2>
+    <p class="pdesc t-bodyl">${e.b}</p>
+    <div class="prel">
+      <h3 class="t-h3">Related material</h3>
+      ${rel.length ? rel.map((i,ix)=>`
+        <button class="relcard" data-item="${i.id}">
+          <span class="rthumb">${artFor(i.art,72,72,ix)}</span>
+          <span class="rmeta"><span class="rt">${i.t}</span>
+            <span class="rid">${i.id} · ${i.type} · ${fmtDate(i.date)}</span></span>
+        </button>`).join('')
+        : `<p class="t-caption" style="margin:0;color:var(--text-muted)">No archive record is linked to this event.</p>`}
+    </div>`;
+}
+
 SCREENS.timeline = () => `
   <div class="tl-body">
-    <div class="legend">
-      <span class="leg"><span class="legd" style="background:var(--action-default)"></span>Document</span>
-      <span class="leg"><span class="legd" style="background:var(--accent-brass)"></span>Event</span>
-      <span class="leg"><span class="legd" style="border:2px solid var(--text-primary)"></span>Person</span>
-      <span class="leg"><span class="legd" style="background:var(--bg-raised);border:2px solid var(--accent-brass)"></span>Cluster</span>
+    <div class="tl-head">
+      <div class="eyebrow-t">Historical chronology</div>
+      <h1 class="t-h1">Timeline</h1>
+      <p class="sub t-caption">Select an event to see its context and the archive records linked to it.</p>
     </div>
-    <div class="axisrow">
-      <button class="pg-arrow" id="tlLeft">${svg(IC.back,26,1.8)}</button>
-      <div class="viewport" id="tlVp"><div class="track" id="tlTrack" style="width:${ERA_W*ERAS.length}px">
-        <div class="axisline" style="width:${ERA_W*ERAS.length}px"></div>
-        ${ERA_S.map((y,i)=>`<div class="tick" style="left:${i*ERA_W}px"></div><div class="ticklabel" style="left:${i*ERA_W}px">${y}</div>`).join('')}
-        ${TL_NODES.map((n,i)=>n.type==='c'
-          ? `<button class="tnode clu" data-tn="${i}" style="left:${n.x}px"><span class="cn">${n.items.length}</span></button>`
-          : `<button class="tnode ${n.item.k}" data-tn="${i}" style="left:${n.x}px"></button>`).join('')}
-      </div></div>
-      <button class="pg-arrow" id="tlRight">${svg(IC.fwd,26,1.8)}</button>
+    <div class="tl-cols">
+      <div class="tl-listwrap">
+        <div class="tl-scroll" id="tlScroll"><div class="tl-inner">
+          <div class="tl-rail"></div>
+          ${TL_EVENTS.map((e,i)=>`
+            <button class="tl-row ${i===tlState.sel?'sel':''}" data-tl="${i}">
+              <span class="ring"></span>
+              <span class="ryear">${fmtDate(e.d)}</span>
+              <span class="rtitle">${e.t}</span>
+            </button>`).join('')}
+        </div></div>
+        <div class="tl-fade top"></div><div class="tl-fade bot"></div>
+        <div class="tl-pos" id="tlPos"><i id="tlThumb"></i></div>
+      </div>
+      <div class="tl-panel" id="tlPanel">${tlPanelHTML(TL_EVENTS[tlState.sel])}</div>
     </div>
-    <div id="tlCardHost"></div>
-    <div class="erarow">${ERAS.map((e,i)=>`<button class="era-pill" data-era="${i}">${e}</button>`).join('')}</div>
+    <div class="erarow">${TL_ERAS.map(e=>`<button class="era-pill" data-era="${e}">${e}</button>`).join('')}</div>
   </div>
   ${navbar('timeline')}`;
+
 SCREENS.timeline.mount = () => {
-  const vp=$('#tlVp'), track=$('#tlTrack'), host=$('#tlCardHost');
-  const maxPan=()=>-Math.max(0,ERA_W*ERAS.length-vp.clientWidth);
-  const apply=a=>{ track.classList.toggle('anim',!!a); track.style.transform='translateX('+tlPan+'px)';
-    $('#tlLeft').classList.toggle('is-disabled',tlPan>=-1); $('#tlRight').classList.toggle('is-disabled',tlPan<=maxPan()+1);
-    const idx=Math.max(0,Math.min(ERAS.length-1,Math.round((-tlPan+vp.clientWidth/2)/ERA_W-0.5)));
-    document.querySelectorAll('.era-pill').forEach((p,i)=>p.classList.toggle('active',i===idx));
-    host.innerHTML=''; };
-  const setPan=(v,a)=>{ tlPan=Math.max(maxPan(),Math.min(0,v)); apply(a); };
-  $('#tlLeft').addEventListener('click',()=>setPan(tlPan+ERA_W,true));
-  $('#tlRight').addEventListener('click',()=>setPan(tlPan-ERA_W,true));
-  document.querySelectorAll('[data-era]').forEach(b=>b.addEventListener('click',()=>setPan(-(+b.dataset.era*ERA_W)+40,true)));
-  let drag=false,sx=0,ps=0,moved=false;
-  vp.addEventListener('pointerdown',e=>{drag=true;moved=false;sx=e.clientX;ps=tlPan;vp.setPointerCapture(e.pointerId);});
-  vp.addEventListener('pointermove',e=>{ if(!drag)return; const dx=e.clientX-sx; if(Math.abs(dx)>4)moved=true; tlPan=Math.max(maxPan(),Math.min(0,ps+dx)); apply(false); });
-  vp.addEventListener('pointerup',()=>{drag=false;});
-  document.querySelectorAll('[data-tn]').forEach(el=>el.addEventListener('click',e=>{
-    if(moved) return; e.stopPropagation();
-    const n=TL_NODES[+el.dataset.tn];
-    const absX=(vp.getBoundingClientRect().left-$('#frame').getBoundingClientRect().left)/(($('#frame').getBoundingClientRect().width)/1280)+n.x+tlPan;
-    const left=Math.max(16,Math.min(1280-420-16,absX-210)), conn=Math.max(20,Math.min(400,absX-left));
-    host.innerHTML = n.type==='c'
-      ? `<div class="tcard" style="left:${left}px"><div class="tb">${n.items.map(it=>
-          `<div class="tlistrow" ${it.item?`data-item="${it.item}"`:''}><div><div style="font-size:15px;font-weight:500">${it.t}</div>
-          <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">${it.d}</div></div>${svg(IC.fwd,18,1.8)}</div>`).join('')}
-          </div><div class="tconn" style="left:${conn}px"></div></div>`
-      : `<div class="tcard" style="left:${left}px"><div class="th">${artFor(n.item.item?ITEM(n.item.item).art:'ms',420,88,+el.dataset.tn)}</div>
-          <div class="tb"><h3 class="t-h3" style="margin:0">${n.item.t}</h3>
-          <span class="t-label tdate">${n.item.d}</span><p class="tdesc">${n.item.b}</p>
-          ${n.item.item?`<button class="topen" data-item="${n.item.item}">Open</button>`:''}</div>
-          <div class="tconn" style="left:${conn}px"></div></div>`;
+  const sc=$('#tlScroll'), thumb=$('#tlThumb'), track=$('#tlPos'), panel=$('#tlPanel');
+  const rows=[].slice.call(document.querySelectorAll('.tl-row'));
+
+  function syncThumb(){
+    const vh=sc.clientHeight, ch=sc.scrollHeight;
+    if(ch<=vh+1){ track.style.visibility='hidden'; return; }
+    track.style.visibility='visible';
+    const tt=track.clientHeight, th=Math.max(48, Math.round(tt*vh/ch));
+    thumb.style.height=th+'px';
+    thumb.style.top=Math.round((sc.scrollTop/(ch-vh))*(tt-th))+'px';
+  }
+  function syncEra(){
+    let cur=TL_ERAS[0];
+    for(let i=0;i<rows.length;i++){ if(rows[i].offsetTop>=sc.scrollTop-6){ cur=eraOf(TL_EVENTS[i].y); break; } }
+    document.querySelectorAll('[data-era]').forEach(p=>p.classList.toggle('active',p.dataset.era===cur));
+  }
+  sc.addEventListener('scroll',()=>{ tlState.top=sc.scrollTop; syncThumb();
+    /* while an era jump is animating the pill the reader tapped stays lit,
+       rather than flickering through every decade it passes */
+    if(!tlState.jumping) syncEra(); });
+
+  /* Flick anywhere in the column — no thin scrollbar to aim at. */
+  let drag=false, sy=0, st=0, moved=false;
+  sc.addEventListener('pointerdown',e=>{ clearTimeout(tlState.tween); tlState.jumping=false;
+    drag=true; moved=false; sy=e.clientY; st=sc.scrollTop; });
+  sc.addEventListener('pointermove',e=>{ if(!drag) return; const dy=e.clientY-sy;
+    if(Math.abs(dy)>6) moved=true; sc.scrollTop=st-dy; });
+  const endDrag=()=>{ drag=false; };
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=>sc.addEventListener(ev,endDrag));
+
+  rows.forEach((r,i)=>r.addEventListener('click',()=>{
+    if(moved) return;
+    tlState.sel=i;
+    rows.forEach(x=>x.classList.remove('sel')); r.classList.add('sel');
+    panel.innerHTML=tlPanelHTML(TL_EVENTS[i]);
   }));
-  apply(false);
+
+  document.querySelectorAll('[data-era]').forEach(p=>p.addEventListener('click',()=>{
+    const ix=TL_EVENTS.findIndex(e=>eraOf(e.y)===p.dataset.era);
+    if(ix<0) return;
+    tlState.jumping=true;
+    document.querySelectorAll('[data-era]').forEach(x=>x.classList.toggle('active',x===p));
+    tlScrollTo(sc, rows[ix].offsetTop-14, ()=>{ tlState.jumping=false; syncEra(); });
+  }));
+
+  sc.scrollTop=tlState.top; syncThumb(); syncEra();
 };
 
 /* ============================================================
    SCREEN: related (Prompt 8)
    ============================================================ */
-const E_ENT={amb:{n:'Dr. B. R. Ambedkar',k:'person',portrait:true},mahad:{n:'Mahad Satyagraha',k:'event',item:'mahadcorr'},
-  aoc:{n:'Annihilation of Caste',k:'document',item:'aoc'},rajgruha:{n:'Rajgruha',k:'place'},
-  ca:{n:'Constituent Assembly Debates',k:'document',item:'cadebates'},columbia:{n:'Columbia Correspondence',k:'document',item:'columbia'},
-  buddhism:{n:'Conversion to Buddhism',k:'event'},centre:{n:'Institutional Archive',k:'place'},
-  chron:{n:'Letter to the Bombay Chronicle',k:'document',item:'bombaychron'}};
-const E_EDGE={
-  amb:[['mahad','participated in'],['aoc','authored'],['rajgruha','associated with'],['ca','participated in'],['buddhism','participated in'],['centre','located at'],['chron','authored']],
-  mahad:[['amb','related to'],['rajgruha','located at'],['chron','mentioned in'],['centre','mentioned in'],['ca','related to'],['aoc','related to']],
-  aoc:[['amb','authored'],['ca','mentioned in'],['rajgruha','associated with']],
-  rajgruha:[['amb','associated with'],['mahad','located at']],
-  ca:[['amb','participated in'],['aoc','mentioned in'],['mahad','related to']],
-  columbia:[['amb','related to']],buddhism:[['amb','participated in']],
-  centre:[['amb','located at'],['mahad','mentioned in']],chron:[['amb','authored'],['mahad','mentioned in']]};
+/* There is no relationship endpoint in the backend, so the graph is
+   no longer a hand-written adjacency list of invented entities. It is
+   derived entirely from fields the API does return:
+     · author_speaker is 'B. R. Ambedkar' on every record → 'authored'
+     · two records sharing a tag → 'shares tag · <tag>'
+   Records with unique tags (A-006, A-008) connect only to the author,
+   which is the honest result rather than a padded one.             */
 let relState={id:'amb',page:0,list:false};
+const E_ENT = {};
+const E_EDGE = {};
+function rebuildGraph(){
+  Object.keys(E_ENT).forEach(k => delete E_ENT[k]);
+  Object.keys(E_EDGE).forEach(k => delete E_EDGE[k]);
+  E_ENT.amb = {n:(ITEMS[0] && ITEMS[0].author) || AUTHOR, k:'person', portrait:true};
+  ITEMS.forEach(i => { E_ENT[i.id] = {n:i.t, k:'document', item:i.id}; });
+  E_EDGE.amb = ITEMS.map(i => [i.id, 'authored']);
+  ITEMS.forEach(a => {
+    const rows = [['amb','authored by']];
+    ITEMS.forEach(b => {
+      if(a.id === b.id) return;
+      const shared = a.tags.filter(t => b.tags.indexOf(t) >= 0);
+      if(shared.length) rows.push([b.id, 'shares tag · ' + shared[0]]);
+    });
+    E_EDGE[a.id] = rows;
+  });
+  /* a reload can retire the id the graph was centred on */
+  if(!E_ENT[relState.id]) relState.id = 'amb';
+}
+rebuildGraph();
 SCREENS.related = (p) => {
   if(p.id && E_ENT[p.id]) relState.id=p.id;
   const id=relState.id, ent=E_ENT[id], all=E_EDGE[id]||[];
   const pages=Math.max(1,Math.ceil(all.length/6)); relState.page=Math.min(relState.page,pages-1);
   const edges=all.slice(relState.page*6,relState.page*6+6);
-  const CX=640,CY=300,R=252;
+  /* Orbit geometry: the top node was clipped by 41px against the canvas
+     and edge labels sat on top of the node circles. Both are pre-existing;
+     the real catalogue titles, which are longer, made them more visible. */
+  const CX=640,CY=332,R=240;
   const lines=[],labels=[],nodes=[];
   edges.forEach((ed,i)=>{
     const ang=(-90+i*(360/edges.length))*Math.PI/180;
@@ -1486,8 +1992,8 @@ SCREENS.related.mount = () => {
    ============================================================ */
 let aiState={playing:false,el:0,timer:null};
 SCREENS.aiviewer = (p) => {
-  const it=ITEM(p.id)||ITEM('rtcai');
-  const src=['mahadcorr','chron','states'].map(x=>ITEM(x==='chron'?'bombaychron':x));
+  const it=ITEM(p.id)||AI_FEATURE;
+  const src=['A-003','A-004','A-007'].map(x=>ITEM(x)).filter(Boolean).concat(ITEMS).slice(0,3);
   return `
   <div class="aistage">${aiSceneArt(1232,752)}</div>
   <div class="aiborder"></div>
@@ -1495,11 +2001,11 @@ SCREENS.aiviewer = (p) => {
   <button class="btn-icon ai-close" data-back aria-label="Close">${svg(IC.close,26,1.8)}</button>
   <button class="ai-play" id="aiPlay">${svg('<path d="M7 5v14l12-7z"/>',34,0,'fill="currentColor" stroke="none"')}</button>
   <div class="aiscrim">
-    <span style="font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-secondary)">Generated from these verified sources</span>
+    <span style="font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-secondary)">Generated from these archive records</span>
     <div class="sb-cards">${src.map((i,ix)=>`<div class="sb-card" data-item="${i.id}">
       <div class="sb-thumb">${artFor(i.art,44,44,ix)}</div>
       <div style="min-width:0;flex:1"><div class="sb-title">${i.short}</div>
-      <span style="display:inline-flex;align-items:center;gap:4px;margin-top:3px;font-size:11px;font-weight:600;text-transform:uppercase;color:var(--state-verified)">${svg(IC.check,10,3.2)}Verified</span></div></div>`).join('')}</div>
+      <span style="display:inline-flex;align-items:center;gap:4px;margin-top:3px;font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-secondary)">${svg(IC.info,10,2)}Not verified</span></div></div>`).join('')}</div>
     <div class="scrubrow"><span class="tlab" id="aiEl">0:00</span>
       <div class="scrub" style="flex:1"><div class="fill" id="aiFill"></div></div><span class="tlab">0:42</span></div>
   </div>`;
@@ -1618,7 +2124,7 @@ SCREENS.attract = () => `
     <div class="identity">
       <div class="t-label kicker">Public Archive · Free Entry</div>
       <h2 class="t-display">The Heritage Archive</h2>
-      <p class="t-bodyl sub">Manuscripts, photographs and memorials of the Republic</p>
+      <p class="t-bodyl sub">Writings, debates and speeches of the Republic</p>
       <p class="devline">विरासत अभिलेखागार</p>
     </div>
     <div class="cta">
@@ -1632,10 +2138,10 @@ SCREENS.attract = () => `
       </div>
     </div>
     <div class="teaser"><ul>
-      <li class="t-caption">1,247 manuscripts · 380 photographs · 96 memorials</li>
-      <li class="t-caption">Correspondence spanning 1891–1956 · digitised in full</li>
-      <li class="t-caption">Drafting papers · speeches · personal library</li>
-      <li class="t-caption">1,247 manuscripts · 380 photographs · 96 memorials</li>
+      <li class="t-caption">${STATE.total != null ? STATE.total : ITEMS.length} catalogued records · extracted text held in full</li>
+      <li class="t-caption">Spanning ${Math.min(...ITEMS.map(i=>i.year))}–${Math.max(...ITEMS.map(i=>i.year))} · every record open to read</li>
+      <li class="t-caption">Constituent Assembly debates · public addresses · economic studies</li>
+      <li class="t-caption">${STATE.total != null ? STATE.total : ITEMS.length} catalogued records · extracted text held in full</li>
     </ul></div>
     <div class="langs">
       <button class="lang-pill" data-lang="ENG">English</button>
@@ -1657,13 +2163,20 @@ SCREENS.attract.mount = () => {
 $('#reviewbar').addEventListener('click', e=>{
   const b=e.target.closest('.rb-btn'); if(!b) return;
   if(b.dataset.go){
-    const p = b.dataset.go==='detail' ? {id:'aoc'}
-            : b.dataset.go==='browse' ? {cat:'Manuscripts'}
+    const p = b.dataset.go==='detail' ? {id:(ITEMS[0]||{}).id}
+            : b.dataset.go==='browse' ? {cat:(CATEGORIES[0]||{}).id}
             : b.dataset.go==='related' ? {id:'amb'}
-            : b.dataset.go==='aiviewer' ? {id:'rtcai'} : {};
+            : b.dataset.go==='aiviewer' ? {id:AI_FEATURE.id} : {};
     go(b.dataset.go, p);
   }
-  if(b.id==='rbOffline'){ STATE.offline=!STATE.offline; b.textContent='Offline: '+(STATE.offline?'on':'off'); b.classList.toggle('active',STATE.offline); go(STATE.screen,STATE.params,{noHistory:true}); }
+  if(b.id==='rbApi'){ b.textContent='API: connecting…'; connect(); }
+  if(b.id==='rbOffline'){
+    STATE.forceOffline=!STATE.forceOffline;
+    b.textContent='Offline: '+(STATE.forceOffline?'on':'off');
+    b.classList.toggle('active',STATE.forceOffline);
+    STATE.offline = STATE.forceOffline || !STATE.live;
+    apiBadge(); go(STATE.screen,STATE.params,{noHistory:true});
+  }
   if(b.id==='rbIdle'){ STATE.idleOn=!STATE.idleOn; b.textContent='Idle timer: '+(STATE.idleOn?'on':'off'); b.classList.toggle('active',!STATE.idleOn); resetIdle(); }
   if(b.id==='rbMode'){
     STATE.a11y.mode = STATE.a11y.mode==='dark' ? 'light' : 'dark';
@@ -1679,4 +2192,7 @@ document.documentElement.setAttribute('data-mode',STATE.a11y.mode);
 go('attract',{},{noHistory:true});
 fit();
 idleLoop();
+/* The screen is already up. Reaching the archive service happens after,
+   and swaps the records in place if it succeeds. */
+connect();
 </script>

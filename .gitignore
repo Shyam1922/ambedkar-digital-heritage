@@ -8,3 +8,6 @@ data/processed/
 data/media/
 frontend/node_modules/
 frontend/dist/
+
+# Runtime uploaded documents
+backend/data/uploads/

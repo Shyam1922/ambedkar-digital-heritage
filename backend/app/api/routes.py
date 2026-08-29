@@ -3,7 +3,16 @@ from sqlalchemy import select, func
 from sqlalchemy.orm import Session, selectinload
 from app.db.database import get_db
 from app.models import ArchiveItem, DocumentChunk, TimelineEvent
-from app.schemas.archive import ArchiveItemOut, DocumentPageOut, ArchiveListOut, ResearchRequest, ResearchResponse, SearchRequest, SearchResult, TimelineEventOut
+from app.schemas.archive import (
+    ArchiveItemOut,
+    DocumentPageOut,
+    ArchiveListOut,
+    ResearchRequest,
+    ResearchResponse,
+    SearchRequest,
+    SearchResult,
+    TimelineEventOut,
+)
 from app.services.rag import research
 from app.services.retrieval import retrieve
 from app.services.ingestion import stitch_chunks
@@ -12,15 +21,38 @@ router = APIRouter()
 
 
 def archive_out(item: ArchiveItem) -> ArchiveItemOut:
-    return ArchiveItemOut(archive_id=item.archive_id, title=item.title, description=item.description,
-        type=item.type, date=item.date, author_speaker=item.author_speaker, language=item.language,
-        source=item.source, source_url=item.source_url, tags=[tag.strip() for tag in item.tags.split(",") if tag.strip()],
-        file_path=item.file_path, extracted_text=item.extracted_text, verification_status=item.verification_status)
+    return ArchiveItemOut(
+        archive_id=item.archive_id,
+        title=item.title,
+        description=item.description,
+        type=item.type,
+        date=item.date,
+        author_speaker=item.author_speaker,
+        language=item.language,
+        source=item.source,
+        source_url=item.source_url,
+        tags=[
+            tag.strip()
+            for tag in item.tags.split(",")
+            if tag.strip()
+        ],
+        file_path=item.file_path,
+        extracted_text=item.extracted_text,
+        verification_status=item.verification_status,
+        short_summary=item.short_summary,
+    )
 
 
 def timeline_out(event: TimelineEvent) -> TimelineEventOut:
-    return TimelineEventOut(event_id=event.event_id, date=event.date, title=event.title, description=event.description,
-        image=event.image, verification_status=event.verification_status, related_archive_items=[archive_out(item) for item in event.archive_items])
+    return TimelineEventOut(
+        event_id=event.event_id,
+        date=event.date,
+        title=event.title,
+        description=event.description,
+        image=event.image,
+        verification_status=event.verification_status,
+        related_archive_items=[archive_out(item) for item in event.archive_items],
+    )
 
 
 @router.get("/health")
@@ -31,10 +63,15 @@ def health():
 @router.get("/archive", response_model=ArchiveListOut)
 def list_archive(q: str = "", type: str | None = None, db: Session = Depends(get_db)):
     stmt = select(ArchiveItem).order_by(ArchiveItem.date)
-    if type: stmt = stmt.where(ArchiveItem.type == type)
+    if type:
+        stmt = stmt.where(ArchiveItem.type == type)
     if q:
         needle = f"%{q}%"
-        stmt = stmt.where(ArchiveItem.title.ilike(needle) | ArchiveItem.description.ilike(needle) | ArchiveItem.tags.ilike(needle))
+        stmt = stmt.where(
+            ArchiveItem.title.ilike(needle)
+            | ArchiveItem.description.ilike(needle)
+            | ArchiveItem.tags.ilike(needle)
+        )
     items = db.scalars(stmt).all()
     return ArchiveListOut(items=[archive_out(item) for item in items], total=len(items))
 
@@ -42,8 +79,10 @@ def list_archive(q: str = "", type: str | None = None, db: Session = Depends(get
 @router.get("/archive/{archive_id}", response_model=ArchiveItemOut)
 def archive_detail(archive_id: str, db: Session = Depends(get_db)):
     item = db.scalar(select(ArchiveItem).where(ArchiveItem.archive_id == archive_id))
-    if not item: raise HTTPException(404, "Archive item not found")
+    if not item:
+        raise HTTPException(404, "Archive item not found")
     return archive_out(item)
+
 
 @router.get(
     "/archive/{archive_id}/pages/{page_number}",
@@ -105,14 +144,23 @@ def archive_page(
 
 @router.get("/timeline", response_model=list[TimelineEventOut])
 def list_timeline(db: Session = Depends(get_db)):
-    events = db.scalars(select(TimelineEvent).options(selectinload(TimelineEvent.archive_items)).order_by(TimelineEvent.date)).all()
+    events = db.scalars(
+        select(TimelineEvent)
+        .options(selectinload(TimelineEvent.archive_items))
+        .order_by(TimelineEvent.date)
+    ).all()
     return [timeline_out(event) for event in events]
 
 
 @router.get("/timeline/{event_id}", response_model=TimelineEventOut)
 def timeline_detail(event_id: str, db: Session = Depends(get_db)):
-    event = db.scalar(select(TimelineEvent).options(selectinload(TimelineEvent.archive_items)).where(TimelineEvent.event_id == event_id))
-    if not event: raise HTTPException(404, "Timeline event not found")
+    event = db.scalar(
+        select(TimelineEvent)
+        .options(selectinload(TimelineEvent.archive_items))
+        .where(TimelineEvent.event_id == event_id)
+    )
+    if not event:
+        raise HTTPException(404, "Timeline event not found")
     return timeline_out(event)
 
 

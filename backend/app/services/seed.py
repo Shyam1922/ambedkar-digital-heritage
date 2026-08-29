@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from app.models import ArchiveItem, DocumentChunk, TimelineEvent
+from app.models import ArchiveItem, DocumentChunk, TimelineEvent, Admin
+from app.core.security import hash_password
 from app.services.ingestion import chunk_text
 
 SOURCE = "Ambedkar.org / public archival texts"
@@ -38,6 +39,15 @@ EVENTS = [
 
 
 def seed_database(db: Session) -> None:
+    if not db.scalar(select(Admin.id).limit(1)):
+        db.add(
+            Admin(
+                username="admin",
+                password_hash=hash_password("admin123"),
+            )
+        )
+        db.commit()
+
     if db.scalar(select(ArchiveItem.id).limit(1)):
         return
     lookup = {}

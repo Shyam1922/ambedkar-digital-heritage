@@ -12,6 +12,20 @@ def terms(text: str) -> set[str]:
     return {word for word in re.findall(r"[a-zA-Z]{3,}", text.lower()) if word not in STOPWORDS}
 
 
+def is_front_matter(text: str) -> bool:
+    """Table-of-contents / preface chunks make poor search hits, so skip them."""
+    text = text.lower()
+
+    markers = (
+        "table of contents",
+        "contents",
+        "index",
+        "preface",
+        "foreword",
+        "title page",
+    )
+
+    return any(marker in text for marker in markers)
 
 
 def citation(chunk: DocumentChunk) -> Citation:
@@ -59,6 +73,9 @@ def retrieve(db: Session, query: str, limit: int = 6, archive_id: str | None = N
 
     ranked: list[tuple[float, DocumentChunk]] = []
     for chunk in chunks:
+
+        if is_front_matter(chunk.chunk_text):
+            continue
 
         text_counts = Counter(
             re.findall(r"[a-zA-Z]{3,}", chunk.chunk_text.lower())

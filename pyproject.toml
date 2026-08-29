@@ -1,0 +1,7 @@
+[tool.pytest.ini_options]
+# The FastAPI application package lives in backend/app. Adding backend/ to the
+# import path lets `from app... import ...` resolve regardless of the directory
+# pytest is invoked from (repo root or backend/) and whether it is run as
+# `pytest` or `python -m pytest`.
+pythonpath = ["backend"]
+testpaths = ["backend/tests"]

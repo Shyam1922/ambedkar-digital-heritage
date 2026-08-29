@@ -19,7 +19,14 @@ class Citation(BaseModel):
 # Public archival website
 # --------------------------------------------------
 
-class ArchiveItemOut(BaseModel):
+class ArchiveSummaryOut(BaseModel):
+    """Archive metadata without the full document body.
+
+    Used for list and timeline responses so they do not ship megabytes of
+    ``extracted_text`` the client never renders there. The full text is served
+    by the detail endpoint (``ArchiveItemOut``) and the page reader.
+    """
+
     archive_id: str
     title: str
     description: str
@@ -31,9 +38,12 @@ class ArchiveItemOut(BaseModel):
     source_url: str
     tags: list[str]
     file_path: str = ""
-    extracted_text: str = ""
     verification_status: str
     short_summary: str = ""
+
+
+class ArchiveItemOut(ArchiveSummaryOut):
+    extracted_text: str = ""
 
 
 class ArchiveDetailOut(ArchiveItemOut):
@@ -41,7 +51,7 @@ class ArchiveDetailOut(ArchiveItemOut):
 
 
 class ArchiveListOut(BaseModel):
-    items: list[ArchiveItemOut]
+    items: list[ArchiveSummaryOut]
     total: int
 
 
@@ -50,18 +60,42 @@ class ArchiveListOut(BaseModel):
 # --------------------------------------------------
 
 class KioskArchiveItemOut(BaseModel):
+    """Kiosk archive projection. Full ``extracted_text`` is deliberately
+    absent: the kiosk shows the concise ``summary`` and links visitors to the
+    public website for the complete document. Used as a response_model so the
+    field can never leak even if a mapper is changed."""
+
     archive_id: str
     title: str
-    short_summary: str = ""
+    description: str
+    summary: str = ""
     type: str
     date: str
     author_speaker: str
+    language: str
+    tags: list[str]
     detail_url: str
 
 
 class KioskArchiveListOut(BaseModel):
     items: list[KioskArchiveItemOut]
     total: int
+
+
+class KioskRelatedArchiveItemOut(BaseModel):
+    archive_id: str
+    title: str
+    summary: str = ""
+    detail_url: str
+
+
+class KioskTimelineEventOut(BaseModel):
+    event_id: str
+    date: str
+    title: str
+    description: str
+    image: str
+    related_archive_items: list[KioskRelatedArchiveItemOut] = []
 
 
 # --------------------------------------------------
@@ -113,7 +147,7 @@ class TimelineEventOut(BaseModel):
     image: str
     verification_status: str
 
-    related_archive_items: list[ArchiveItemOut] = []
+    related_archive_items: list[ArchiveSummaryOut] = []
 
 
 # --------------------------------------------------

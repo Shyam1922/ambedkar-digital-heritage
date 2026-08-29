@@ -5,10 +5,10 @@ from sqlalchemy.orm import Session, selectinload
 from app.db.database import get_db
 from app.models import ArchiveItem, TimelineEvent
 from app.schemas.archive import (
-    ArchiveItemOut,
-    TimelineEventOut,
+    KioskArchiveItemOut,
+    KioskArchiveListOut,
+    KioskTimelineEventOut,
 )
-from app.services.summary import generate_summary
 
 
 router = APIRouter(
@@ -42,7 +42,7 @@ def kiosk_archive_out(item: ArchiveItem) -> dict:
     }
 
 
-@router.get("/archive")
+@router.get("/archive", response_model=KioskArchiveListOut)
 def list_kiosk_archive(
     q: str = Query(default=""),
     type: str | None = Query(default=None),
@@ -79,7 +79,7 @@ def list_kiosk_archive(
     }
 
 
-@router.get("/archive/{archive_id}")
+@router.get("/archive/{archive_id}", response_model=KioskArchiveItemOut)
 def kiosk_archive_detail(
     archive_id: str,
     db: Session = Depends(get_db),
@@ -103,7 +103,7 @@ def kiosk_archive_detail(
     return kiosk_archive_out(item)
 
 
-@router.get("/timeline")
+@router.get("/timeline", response_model=list[KioskTimelineEventOut])
 def kiosk_timeline(
     db: Session = Depends(get_db),
 ):
@@ -144,7 +144,7 @@ def kiosk_timeline(
     ]
 
 
-@router.get("/timeline/{event_id}")
+@router.get("/timeline/{event_id}", response_model=KioskTimelineEventOut)
 def kiosk_timeline_detail(
     event_id: str,
     db: Session = Depends(get_db),
@@ -191,7 +191,7 @@ def kiosk_timeline_detail(
     }
 
 
-@router.get("/search")
+@router.get("/search", response_model=list[KioskArchiveItemOut])
 def kiosk_search(
     q: str = Query(min_length=2),
     limit: int = Query(default=10, ge=1, le=20),

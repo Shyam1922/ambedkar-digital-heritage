@@ -25,6 +25,7 @@ from app.schemas.archive import ArchiveItemOut
 from app.schemas.admin import (
     AdminLoginRequest,
     AdminOut,
+    AdminArchiveUpdate,
     TokenResponse,
     AdminIngestionResponse,
     AdminDocumentOut,
@@ -174,6 +175,42 @@ def admin_get_archive_item(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Archive item not found",
         )
+
+    return archive_out(item)
+
+
+@router.patch("/archive/{archive_id}", response_model=ArchiveItemOut)
+def admin_update_archive_item(
+    archive_id: str,
+    payload: AdminArchiveUpdate,
+    db: Session = Depends(get_db),
+    admin: Admin = Depends(get_current_admin),
+):
+    item = db.scalar(
+        select(ArchiveItem).where(
+            ArchiveItem.archive_id == archive_id
+        )
+    )
+
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Archive item not found",
+        )
+
+    updates = payload.model_dump(exclude_unset=True)
+
+    if not updates:
+        raise HTTPException(
+            status_code=400,
+            detail="No fields provided to update",
+        )
+
+    for field, value in updates.items():
+        setattr(item, field, value)
+
+    db.commit()
+    db.refresh(item)
 
     return archive_out(item)
 

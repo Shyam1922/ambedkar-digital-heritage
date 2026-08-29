@@ -42,6 +42,37 @@ def test_admin_list_and_get_archive():
         assert missing_res.status_code == 404
 
 
+def test_admin_update_metadata_and_verification():
+    with TestClient(app) as client:
+        headers = get_auth_headers(client)
+
+        # Unauthenticated updates are rejected.
+        assert client.patch("/admin/archive/A-001", json={"title": "x"}).status_code in {401, 403}
+
+        # Update metadata and the verification status (review workflow).
+        res = client.patch(
+            "/admin/archive/A-001",
+            json={"title": "Annihilation of Caste (reviewed)", "verification_status": "VERIFIED"},
+            headers=headers,
+        )
+        assert res.status_code == 200
+        body = res.json()
+        assert body["title"] == "Annihilation of Caste (reviewed)"
+        assert body["verification_status"] == "VERIFIED"
+
+        # Change is persisted.
+        detail = client.get("/admin/archive/A-001", headers=headers).json()
+        assert detail["verification_status"] == "VERIFIED"
+
+        # Empty payloads and unknown ids are handled.
+        assert client.patch("/admin/archive/A-001", json={}, headers=headers).status_code == 400
+        assert client.patch("/admin/archive/NON-EXISTENT", json={"title": "x"}, headers=headers).status_code == 404
+
+        # The public detail endpoint still exposes full extracted_text.
+        public = client.get("/archive/A-001").json()
+        assert len(public["extracted_text"]) > 200
+
+
 def test_admin_ingest_and_delete_document():
     with TestClient(app) as client:
         headers = get_auth_headers(client)
@@ -133,10 +164,17 @@ def test_kiosk_and_reader_endpoints_functional():
         assert item_res.status_code == 200
         assert item_res.json()["archive_id"] == "A-001"
 
+        # Kiosk responses must never expose the full document body.
+        assert "extracted_text" not in item_res.json()
+        assert all("extracted_text" not in item for item in data["items"])
+
         # Kiosk timeline
         timeline_res = client.get("/kiosk/timeline")
         assert timeline_res.status_code == 200
         assert len(timeline_res.json()) >= 15
+        for event in timeline_res.json():
+            for related in event["related_archive_items"]:
+                assert "extracted_text" not in related
 
         # Kiosk search
         kiosk_search_res = client.get("/kiosk/search?q=caste")

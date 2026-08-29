@@ -4,7 +4,13 @@ __pycache__/
 .pytest_cache/
 .venv/
 backend/archive.db
+# Stray DB that older CWD-relative runs could create at the repo root
+/archive.db
 data/processed/
 data/media/
 frontend/node_modules/
 frontend/dist/
+frontend/*.tsbuildinfo
+
+# Runtime uploaded documents
+backend/data/uploads/

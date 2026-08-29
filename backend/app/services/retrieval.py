@@ -1,7 +1,7 @@
 import re
 from collections import Counter
-from sqlalchemy import select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import or_, select
+from sqlalchemy.orm import Session, contains_eager, defer
 from app.models import ArchiveItem, DocumentChunk
 from app.schemas.archive import Citation, SearchResult
 
@@ -11,7 +11,9 @@ STOPWORDS = {"the", "a", "an", "is", "are", "of", "and", "to", "in", "for", "on"
 def terms(text: str) -> set[str]:
     return {word for word in re.findall(r"[a-zA-Z]{3,}", text.lower()) if word not in STOPWORDS}
 
+
 def is_front_matter(text: str) -> bool:
+    """Table-of-contents / preface chunks make poor search hits, so skip them."""
     text = text.lower()
 
     markers = (
@@ -37,12 +39,43 @@ def citation(chunk: DocumentChunk) -> Citation:
 
 def retrieve(db: Session, query: str, limit: int = 6, archive_id: str | None = None) -> list[SearchResult]:
     query_terms = terms(query)
-    stmt = select(DocumentChunk).options(joinedload(DocumentChunk.archive_item))
+    if not query_terms:
+        return []
+
+    # Join the parent item but DO NOT load its extracted_text: retrieval only
+    # needs metadata, and eagerly loading the full document body for every one
+    # of tens of thousands of chunks materialises gigabytes per query.
+    stmt = (
+        select(DocumentChunk)
+        .join(DocumentChunk.archive_item)
+        .options(
+            contains_eager(DocumentChunk.archive_item).defer(ArchiveItem.extracted_text)
+        )
+    )
+
     if archive_id:
-        stmt = stmt.join(DocumentChunk.archive_item).where(ArchiveItem.archive_id == archive_id)
-    chunks = db.scalars(stmt).unique().yield_per(200)
+        stmt = stmt.where(ArchiveItem.archive_id == archive_id)
+
+    # Prefilter in SQL to the chunks that actually contain a query term, so the
+    # Python scoring loop runs over a small candidate set instead of the whole
+    # corpus. This is a superset of the chunks the scorer would keep, so the
+    # ranked results are unchanged.
+    matchers = []
+    for term in query_terms:
+        like = f"%{term}%"
+        matchers.append(DocumentChunk.chunk_text.ilike(like))
+        matchers.append(ArchiveItem.tags.ilike(like))
+        matchers.append(ArchiveItem.title.ilike(like))
+    stmt = stmt.where(or_(*matchers))
+
+    chunks = db.scalars(stmt).unique().all()
+
+
     ranked: list[tuple[float, DocumentChunk]] = []
     for chunk in chunks:
+
+        if is_front_matter(chunk.chunk_text):
+            continue
 
         text_counts = Counter(
             re.findall(r"[a-zA-Z]{3,}", chunk.chunk_text.lower())
@@ -67,8 +100,7 @@ def retrieve(db: Session, query: str, limit: int = 6, archive_id: str | None = N
 
             if term in title_terms:
                 score += 0.25
-        if is_front_matter(chunk.chunk_text):
-            continue
+        
         
         if score:
             ranked.append((score, chunk))

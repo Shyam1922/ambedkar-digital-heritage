@@ -13,6 +13,19 @@ def test_archive_and_timeline_are_seeded():
         assert len(client.get("/timeline").json()) >= 15
 
 
+def test_archive_list_omits_body_but_detail_includes_it():
+    with TestClient(app) as client:
+        listing = client.get("/archive").json()
+        assert listing["items"]
+        # The list is metadata-only: no full document text is shipped per item.
+        assert all("extracted_text" not in item for item in listing["items"])
+
+        first_id = listing["items"][0]["archive_id"]
+        detail = client.get(f"/archive/{first_id}").json()
+        # The detail endpoint still serves the complete extracted text.
+        assert "extracted_text" in detail
+
+
 def test_search_and_research_are_cited():
     with TestClient(app) as client:
         results = client.post("/search", json={"query": "views on equality"}).json()

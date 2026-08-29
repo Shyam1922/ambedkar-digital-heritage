@@ -2,8 +2,18 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+# backend/ directory (parent of the app package). Used to anchor relative
+# paths so the process working directory can never change which database or
+# .env file is used.
+BASE_DIR = Path(__file__).resolve().parents[2]
+REPO_ROOT = BASE_DIR.parent
+ENV_FILE = REPO_ROOT / ".env"
+
+_SQLITE_PREFIX = "sqlite:///"
+
+
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=str(ENV_FILE), extra="ignore")
 
     database_url: str = "sqlite:///./archive.db"
     vector_store_path: str = "../data/processed/archive.faiss"
@@ -26,9 +36,31 @@ class Settings(BaseSettings):
             if value.strip()
         ]
 
+    @property
+    def resolved_database_url(self) -> str:
+        """Database URL with relative sqlite paths anchored to backend/.
+
+        ``sqlite:///./archive.db`` otherwise resolves against the current
+        working directory, which silently produces a different (seed-only)
+        database when the app is launched from the repository root instead of
+        backend/. Anchoring to BASE_DIR guarantees a single canonical file.
+        Absolute paths and non-sqlite URLs are returned unchanged.
+        """
+        if not self.database_url.startswith(_SQLITE_PREFIX):
+            return self.database_url
+
+        raw = self.database_url[len(_SQLITE_PREFIX):]
+        if not raw or raw == ":memory:":
+            return self.database_url
+
+        path = Path(raw)
+        if not path.is_absolute():
+            path = (BASE_DIR / path).resolve()
+        return f"{_SQLITE_PREFIX}{path.as_posix()}"
+
     def database_path(self) -> Path:
         return Path(
-            self.database_url.replace("sqlite:///", "")
+            self.resolved_database_url.replace(_SQLITE_PREFIX, "")
         ).resolve()
 
 

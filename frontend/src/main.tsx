@@ -10,11 +10,13 @@ import { DocumentReader } from './pages/DocumentReader';
 import { Timeline } from './pages/Timeline';
 import { TimelineDetail } from './pages/TimelineDetail';
 import { Research } from './pages/Research';
+import { Media } from './pages/Media';
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { AdminUpload } from './pages/AdminUpload';
 import { AdminEdit } from './pages/AdminEdit';
 import './styles.css';
+import './kiosk.css';
 
 function PublicLayout() {
   return (
@@ -37,6 +39,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/timeline" element={<Timeline />} />
           <Route path="/timeline/:id" element={<TimelineDetail />} />
           <Route path="/research" element={<Research />} />
+          <Route path="/media" element={<Media />} />
         </Route>
 
         {/* Admin portal */}

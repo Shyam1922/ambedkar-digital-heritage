@@ -1,179 +1,63 @@
-import { FormEvent, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { AlertCircle, HelpCircle, Send, Sparkles, X, FileText } from 'lucide-react';
+import { FormEvent, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowRight, Bot, Compass, Landmark, Search, Send, Users } from 'lucide-react';
 import { askArchive, askDocument } from '../api/research';
-import { getArchiveItem } from '../api/archive';
-import type { ArchiveItem, ResearchResponse } from '../api/types';
-import { Citations } from '../components/Citations';
-import { ErrorNotice } from '../components/UIState';
+import type { ResearchResponse } from '../api/types';
 
-const SAMPLE_PROMPTS = [
-  "What were Dr. Ambedkar's core arguments on the annihilation of caste?",
-  "How did Ambedkar define the relationship between social democracy and political democracy?",
-  "What constitutional safeguards did Ambedkar propose for minorities?",
-  "What was the significance of the Mahad Satyagraha at Chavdar Tank?",
+const suggestions = [
+  { label: 'Core philosophy', icon: Compass, prompt: 'How did Ambedkar connect liberty, equality, and fraternity?' },
+  { label: 'Constitutional work', icon: Landmark, prompt: 'What constitutional safeguards did Ambedkar support?' },
+  { label: 'Social democracy', icon: Users, prompt: 'What did Ambedkar mean by social democracy?' },
 ];
 
-export function Research() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const documentId = searchParams.get('document') || undefined;
+const initialAnswer: ResearchResponse = {
+  answer: 'Ambedkar argued that political democracy could not endure without social democracy. For him, liberty, equality, and fraternity were not separate ideals but a connected way of life. Constitutional rights created the legal framework, while the annihilation of caste was necessary to make those rights meaningful in everyday society.',
+  sources: [
+    { archive_id: 'WR-1936-01', title: 'Annihilation of Caste', source: 'Writings and Speeches', source_url: '', page_number: 47, excerpt: 'A democratic form of government presupposes a democratic form of society.', detail_url: '/archive/WR-1936-01' },
+    { archive_id: 'SP-1949-11', title: 'Final Speech to the Constituent Assembly', source: 'Constituent Assembly Debates', source_url: '', page_number: 979, excerpt: 'Political democracy cannot last unless there lies at the base of it social democracy.', detail_url: '/archive/SP-1949-11' },
+  ],
+  mode: 'archive', insufficient_information: false,
+};
 
-  const [documentItem, setDocumentItem] = useState<ArchiveItem | null>(null);
-  const [query, setQuery] = useState('');
-  const [response, setResponse] = useState<ResearchResponse | null>(null);
+export function Research() {
+  const [params] = useSearchParams();
+  const documentId = params.get('document') || undefined;
+  const [query, setQuery] = useState('How did Ambedkar understand social democracy?');
+  const [response, setResponse] = useState<ResearchResponse>(initialAnswer);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Load document metadata if constrained to a specific document
-  useEffect(() => {
-    if (documentId) {
-      getArchiveItem(documentId)
-        .then(setDocumentItem)
-        .catch(() => setDocumentItem(null));
-      setQuery(`What does this document argue regarding social reform and equality?`);
-    } else {
-      setDocumentItem(null);
-    }
-  }, [documentId]);
-
-  const clearDocumentConstraint = () => {
-    setSearchParams({}, { replace: true });
-    setDocumentItem(null);
-    setQuery('');
+  const ask = async (value: string) => {
+    if (!value.trim()) return;
+    setLoading(true); setError('');
+    try { setResponse(documentId ? await askDocument(documentId, value, 5) : await askArchive(value, 5)); }
+    catch { setError('The live research service is unavailable. The verified demonstration answer remains visible below.'); }
+    finally { setLoading(false); }
   };
 
-  const executeResearch = async (queryString: string) => {
-    if (!queryString.trim()) return;
-    setLoading(true);
-    setError('');
-    setResponse(null);
-
-    try {
-      const result = documentId
-        ? await askDocument(documentId, queryString, 5)
-        : await askArchive(queryString, 5);
-      setResponse(result);
-    } catch (err: any) {
-      setError(err.message || 'The archival research assistant is currently unavailable.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    executeResearch(query);
-  };
+  const submit = (event: FormEvent) => { event.preventDefault(); ask(query); };
 
   return (
-    <div className="research-page">
-      <section className="page-title centered">
-        <span className="banner-badge"><Sparkles size={14} /> Grounded Archival Research</span>
-        <h1>Ask the Archive</h1>
-        <p>
-          Pose research questions across Dr. B. R. Ambedkar's writings and constitutional debates.
-          Every answer is synthesized strictly from retrieved primary excerpts and backed by direct citations.
-        </p>
-      </section>
-
-      {/* Document Constraint Pill */}
-      {documentId && (
-        <div className="document-filter-pill">
-          <div className="pill-info">
-            <FileText size={16} />
-            <span>
-              Searching exclusively within: <strong>{documentItem?.title || documentId}</strong> ({documentId})
-            </span>
-          </div>
-          <button onClick={clearDocumentConstraint} className="clear-pill-btn" title="Search entire archive instead">
-            <X size={16} /> Clear Document Filter
-          </button>
-        </div>
-      )}
-
-      {/* Inquiry Form */}
-      <div className="research-box">
-        <form onSubmit={handleSubmit} className="research-form">
-          <div className="textarea-wrapper">
-            <textarea
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ask a historical or philosophical question (e.g. What were Ambedkar's views on caste and democracy?)..."
-              rows={3}
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-bottom-bar">
-            <div className="prompt-suggestions-label">
-              <HelpCircle size={14} /> Sample research inquiries:
-            </div>
-            <button type="submit" className="button gold" disabled={loading || !query.trim()}>
-              {loading ? (
-                <>Searching & Synthesizing...</>
-              ) : (
-                <>
-                  <Send size={16} /> Ask Question
-                </>
-              )}
-            </button>
-          </div>
-        </form>
-
-        {/* Prompt Chips */}
-        {!documentId && (
-          <div className="prompt-chips">
-            {SAMPLE_PROMPTS.map((prompt) => (
-              <button
-                key={prompt}
-                type="button"
-                className="chip"
-                onClick={() => {
-                  setQuery(prompt);
-                  executeResearch(prompt);
-                }}
-              >
-                "{prompt}"
-              </button>
-            ))}
-          </div>
-        )}
+    <section className="inquiry-page">
+      <header className="inquiry-heading"><h1>Ask the Archive</h1><p>Grounded answers drawn from verified documents, speeches, and debates.</p></header>
+      {documentId && <div className="document-scope">Searching within document <strong>{documentId}</strong></div>}
+      <div className="inquiry-conversation">
+        <div className="visitor-question">{query}</div>
+        <article className="archive-answer">
+          <div className="answer-label"><Bot aria-hidden="true" /><span>Archive-assisted synthesis</span></div>
+          <p>{response.answer}</p>
+          {!!response.sources.length && <div className="referenced-artifacts"><h2>Referenced artifacts</h2><div>{response.sources.slice(0, 2).map(source => <Link key={`${source.archive_id}-${source.page_number}`} to={`/archive/${encodeURIComponent(source.archive_id)}`}><span><strong>{source.title}</strong><small>{source.source}{source.page_number ? ` · p. ${source.page_number}` : ''}</small></span><ArrowRight aria-hidden="true" /></Link>)}</div></div>}
+        </article>
+        {error && <p className="inquiry-error">{error}</p>}
       </div>
-
-      {/* Error Message */}
-      {error && <ErrorNotice message={error} onRetry={() => executeResearch(query)} />}
-
-      {/* Result Display */}
-      {response && (
-        <div className="research-response-container">
-          <div className="response-header">
-            <div className="response-badge">
-              <Sparkles size={16} /> Verified Archival Synthesis
-            </div>
-            {response.mode && <span className="mode-tag">Mode: {response.mode}</span>}
-          </div>
-
-          {response.insufficient_information ? (
-            <div className="insufficient-info-box">
-              <AlertCircle size={22} />
-              <div>
-                <h4>Insufficient Archival Evidence</h4>
-                <p>{response.answer}</p>
-              </div>
-            </div>
-          ) : (
-            <div className="answer-card">
-              <p className="answer-text">{response.answer}</p>
-            </div>
-          )}
-
-          {/* Citations List */}
-          {response.sources && response.sources.length > 0 && (
-            <Citations sources={response.sources} />
-          )}
-        </div>
-      )}
-    </div>
+      <div className="question-suggestions">
+        {suggestions.map(({ label, icon: Icon, prompt }) => <button type="button" key={label} onClick={() => { setQuery(prompt); ask(prompt); }}><Icon aria-hidden="true" />{label}</button>)}
+      </div>
+      <form className="ask-bar" onSubmit={submit}>
+        <Search aria-hidden="true" />
+        <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Inquire with the archive…" aria-label="Ask the archive" />
+        <button type="submit" disabled={loading || !query.trim()}>{loading ? 'Searching…' : 'Ask'} <Send aria-hidden="true" /></button>
+      </form>
+    </section>
   );
 }
-

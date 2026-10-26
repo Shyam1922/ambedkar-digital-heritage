@@ -1,134 +1,62 @@
-import { useEffect, useState } from 'react';
-import { Search, Filter, RefreshCw } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Search, ShieldCheck } from 'lucide-react';
 import { listArchiveItems } from '../api/archive';
 import type { ArchiveItem } from '../api/types';
-import { ArchiveCard } from '../components/ArchiveCard';
-import { EmptyState, ErrorNotice, LoadingState } from '../components/UIState';
 
-const MATERIAL_TYPES = [
-  '',
-  'Writing',
-  'Speech',
-  'Constitutional Debate',
-  'Book',
-  'Article',
-  'Manuscript',
-  'Photograph',
-  'Other',
+const MANUSCRIPT = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAvbPio4YhdU2INA1fj4D0jISqVH6cXvPsmKBU9Z5gwhe1tC3ho8F2nzEB9EqxMVvXQ1-Q6DCslBFGtDyrCOiunOskAuo05iKygZTttaYqqiXFz4tT9pxR8Y_R1nozsvhaYI9JNUsvMo1lMMARqFDSl8YiugJ27xnLGU-ZMSq6r5e-TCDelTR-viBDYboYOcfJMz8P5GOT1krYBRtHaIibLCjVje3wSZ2vIoveGbmYFZUoaZ1itNinz';
+const SPEECH = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAhIrxwaJvgpWryK1U3DoHwTDUziZXiazNL9NGzwWMv52OW6AAE0D1lE_K-r-Kobsms9IoSCphFYc5PwNQ8E3OEUwC2gkRfZA0UYsTPaKKvXcwu303M9gg5flhuRpplsYrX7falg4UsAtd98d2JfiXFBlKy0D3tbtmDaHBDZ3ew74-xWLJJz1JEby3QIQUi16OB1ZJ01iThwSmtvlabbL72hRzcE2d0dk1l4Nq658S9otsU5v8UZ5g5';
+
+const fallback: ArchiveItem[] = [
+  { archive_id: 'WR-1936-01', title: 'Annihilation of Caste', description: 'The undelivered 1936 address examining caste, religious authority, and the conditions required for social reform.', type: 'Writing', date: '1936', author_speaker: 'Dr. B. R. Ambedkar', language: 'English', source: 'Writings and Speeches', source_url: '', tags: ['Caste', 'Equality'], verification_status: 'Authenticated' },
+  { archive_id: 'SP-1949-11', title: 'Final Speech to the Constituent Assembly', description: 'Ambedkar’s concluding address on constitutional morality, democracy, and the responsibilities of citizens.', type: 'Speech', date: '25 November 1949', author_speaker: 'Dr. B. R. Ambedkar', language: 'English', source: 'Constituent Assembly Debates', source_url: '', tags: ['Constitution', 'Democracy'], verification_status: 'Authenticated' },
 ];
 
+const filters = ['All', 'Writing', 'Speech', 'Photograph', 'Book'];
+
 export function Archive() {
-  const [items, setItems] = useState<ArchiveItem[]>([]);
-  const [total, setTotal] = useState(0);
+  const [items, setItems] = useState<ArchiveItem[]>(fallback);
   const [query, setQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [type, setType] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [filter, setFilter] = useState('All');
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, 250);
-    return () => clearTimeout(handler);
-  }, [query]);
+    listArchiveItems('', '').then(data => data.items.length && setItems(data.items)).catch(() => undefined);
+  }, []);
 
-  const loadData = () => {
-    setLoading(true);
-    setError('');
-    listArchiveItems(debouncedQuery, type)
-      .then((data) => {
-        setItems(data.items);
-        setTotal(data.total);
-      })
-      .catch((err) => {
-        setError(err.message || 'Failed to load archive items.');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
-  useEffect(() => {
-    loadData();
-  }, [debouncedQuery, type]);
+  const visible = useMemo(() => items.filter(item => {
+    const matchesFilter = filter === 'All' || item.type.toLowerCase().includes(filter.toLowerCase());
+    const haystack = `${item.title} ${item.description} ${item.tags?.join(' ')}`.toLowerCase();
+    return matchesFilter && haystack.includes(query.toLowerCase());
+  }), [items, filter, query]);
 
   return (
-    <div className="archive-explorer-page">
-      <section className="page-title">
-        <p className="eyebrow">Archival Collection</p>
-        <h1>Archive Explorer</h1>
-        <p>
-          Browse and filter digitized writings, speeches, and constitutional deliberations. Open any source document
-          to read its page-by-page text or ask targeted AI questions.
-        </p>
-      </section>
-
-      <div className="filters-bar">
-        <div className="search-input-wrapper">
-          <Search size={18} className="search-icon" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by title, description, or tags (e.g. equality, caste, economy)..."
-            aria-label="Search archive"
-          />
-          {query && (
-            <button className="clear-query-btn" onClick={() => setQuery('')}>
-              Clear
-            </button>
-          )}
-        </div>
-
-        <div className="type-select-wrapper">
-          <Filter size={16} className="filter-icon" />
-          <select value={type} onChange={(e) => setType(e.target.value)} aria-label="Filter by material type">
-            {MATERIAL_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t || 'All Material Types'}
-              </option>
-            ))}
-          </select>
-        </div>
+    <section className="archive-kiosk-page">
+      <div className="archive-toolbar">
+        <div><h1>Archive &amp; Media</h1><p>Verified primary sources from Ambedkar’s life and work.</p></div>
+        <label className="archive-search"><Search aria-hidden="true" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search the collection" /></label>
+      </div>
+      <div className="archive-filters" role="group" aria-label="Filter collection">
+        {filters.map(value => <button key={value} type="button" onClick={() => setFilter(value)} className={filter === value ? 'active' : ''}>{value}</button>)}
       </div>
 
-      <div className="results-summary">
-        <span>
-          Showing <strong>{items.length}</strong> of <strong>{total}</strong> archive {total === 1 ? 'item' : 'items'}
-          {type && ` in type "${type}"`}
-          {debouncedQuery && ` matching "${debouncedQuery}"`}
-        </span>
+      <div className="artifact-grid">
+        {visible.map((item, index) => (
+          <article className="artifact-card" key={item.archive_id}>
+            <Link to={`/archive/${encodeURIComponent(item.archive_id)}`} className="artifact-image">
+              <img src={index % 2 ? SPEECH : MANUSCRIPT} alt="" />
+              <span>{item.type}</span>
+            </Link>
+            <div className="artifact-body">
+              <div className="artifact-status"><span>{item.date}</span><span><ShieldCheck aria-hidden="true" /> {item.verification_status || 'Verified'}</span></div>
+              <h2>{item.title}</h2>
+              <p>{item.description}</p>
+              <div className="artifact-footer"><strong>ID: {item.archive_id}</strong><Link to={`/archive/${encodeURIComponent(item.archive_id)}`}>View</Link></div>
+            </div>
+          </article>
+        ))}
       </div>
-
-      {error ? (
-        <ErrorNotice message={error} onRetry={loadData} />
-      ) : loading ? (
-        <LoadingState message="Searching archival collection..." />
-      ) : items.length > 0 ? (
-        <div className="grid">
-          {items.map((item) => (
-            <ArchiveCard key={item.archive_id} item={item} />
-          ))}
-        </div>
-      ) : (
-        <EmptyState
-          title="No archival items matched your filters"
-          message="Try resetting your search query or choosing 'All Material Types'."
-          action={
-            <button
-              className="button outline"
-              onClick={() => {
-                setQuery('');
-                setType('');
-              }}
-            >
-              <RefreshCw size={15} /> Reset Filters
-            </button>
-          }
-        />
-      )}
-    </div>
+      {!visible.length && <div className="kiosk-empty"><h2>No records found</h2><p>Try another search term or collection type.</p></div>}
+      <footer className="archive-pagination"><span>Showing {visible.length} of {items.length} artifacts</span><div><button disabled aria-label="Previous page"><ChevronLeft /></button><span>Page 1 of 1</span><button disabled aria-label="Next page"><ChevronRight /></button></div></footer>
+    </section>
   );
 }
-

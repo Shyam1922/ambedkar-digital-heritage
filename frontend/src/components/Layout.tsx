@@ -1,104 +1,58 @@
-import { useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Landmark, Menu, X, BookOpen, Clock, Sparkles, Home as HomeIcon, Lock } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { Archive, Clock3, Globe2, Home, Images, Languages, MessageCircleQuestion, Timer } from 'lucide-react';
+
+const navigation = [
+  { to: '/', label: 'Home', icon: Home, end: true },
+  { to: '/timeline', label: 'Life Journey', icon: Clock3 },
+  { to: '/archive', label: 'Archive', icon: Archive },
+  { to: '/media', label: 'Media', icon: Images },
+  { to: '/research', label: 'Ask', icon: MessageCircleQuestion },
+];
 
 export function Layout({ children }: { children: ReactNode }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const location = useLocation();
-
-  const closeMenu = () => setMobileMenuOpen(false);
+  const { pathname } = useLocation();
+  const isHome = pathname === '/';
 
   return (
-    <div className="site-wrapper">
-      <header className="site-header">
-        <Link className="brand" to="/" onClick={closeMenu}>
-          <div className="brand-icon-wrapper">
-            <Landmark size={22} />
-          </div>
-          <div className="brand-text">
-            <span className="brand-main">Ambedkar</span>
-            <span className="brand-sub">Digital Heritage Archive</span>
-          </div>
-        </Link>
-
-        <nav className="desktop-nav">
-          <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : '')}>
-            Home
-          </NavLink>
-          <NavLink to="/archive" className={({ isActive }) => (isActive ? 'active' : '')}>
-            Explore Archive
-          </NavLink>
-          <NavLink to="/timeline" className={({ isActive }) => (isActive ? 'active' : '')}>
-            Timeline
-          </NavLink>
-          <NavLink to="/research" className={({ isActive }) => (isActive ? 'active' : '')}>
-            <span className="sparkle-nav"><Sparkles size={14} /> Ask the Archive</span>
-          </NavLink>
-        </nav>
-
-        <button
-          className="mobile-toggle"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        {mobileMenuOpen && (
-          <div className="mobile-nav-drawer">
-            <NavLink to="/" end onClick={closeMenu} className={location.pathname === '/' ? 'active' : ''}>
-              <HomeIcon size={18} /> Home
-            </NavLink>
-            <NavLink to="/archive" onClick={closeMenu} className={location.pathname.startsWith('/archive') ? 'active' : ''}>
-              <BookOpen size={18} /> Explore Archive
-            </NavLink>
-            <NavLink to="/timeline" onClick={closeMenu} className={location.pathname.startsWith('/timeline') ? 'active' : ''}>
-              <Clock size={18} /> Historical Timeline
-            </NavLink>
-            <NavLink to="/research" onClick={closeMenu} className={location.pathname.startsWith('/research') ? 'active' : ''}>
-              <Sparkles size={18} /> Ask the Archive (AI)
-            </NavLink>
-          </div>
-        )}
+    <div className={`kiosk-shell ${isHome ? 'kiosk-home-shell' : ''}`}>
+      <header className="kiosk-header">
+        <NavLink to="/" className="kiosk-wordmark" aria-label="Ambedkar Digital Heritage home">
+          <Globe2 aria-hidden="true" />
+          <span>{isHome ? 'Digital Heritage Archive' : 'Ambedkar Digital Heritage'}</span>
+        </NavLink>
+        <div className="kiosk-header-tools">
+          {!isHome && <span className="session-timer"><strong>90s</strong><Timer aria-hidden="true" /></span>}
+          <button className="language-button" type="button" aria-label="Change language">
+            <Languages aria-hidden="true" /> ENG / मराठी
+          </button>
+        </div>
       </header>
 
-      <main className="site-main">{children}</main>
+      <div className="kiosk-frame">
+        {!isHome && (
+          <nav className="heritage-rail" aria-label="Museum navigation">
+            {navigation.map(({ to, label, icon: Icon, end }) => (
+              <NavLink key={to} to={to} end={end} className={({ isActive }) => isActive ? 'active' : ''}>
+                <Icon aria-hidden="true" />
+                <span>{label}</span>
+              </NavLink>
+            ))}
+          </nav>
+        )}
+        <main className="kiosk-main">{children}</main>
+      </div>
 
-      <footer className="site-footer">
-        <div className="footer-inner">
-          <div className="footer-brand">
-            <div className="brand">
-              <Landmark size={20} />
-              <span>Ambedkar Digital Heritage Archive</span>
-            </div>
-            <p className="footer-tagline">
-              A curated preservation platform dedicated to the writings, speeches, and constitutional legacy of Dr. B. R. Ambedkar.
-            </p>
-          </div>
-          <div className="footer-links">
-            <div className="footer-col">
-              <h4>Navigation</h4>
-              <Link to="/">Home</Link>
-              <Link to="/archive">Archive Explorer</Link>
-              <Link to="/timeline">Chronology</Link>
-              <Link to="/research">AI Research Assistant</Link>
-            </div>
-            <div className="footer-col">
-              <h4>Principles</h4>
-              <span>100% Grounded Sources</span>
-              <span>Direct Page Citation</span>
-              <span>Open Heritage Preservation</span>
-            </div>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} Ambedkar Digital Heritage Archive · Public Access Edition</p>
-          <Link to="/admin/login" className="footer-admin-link">
-            <Lock size={11} /> Admin Portal
-          </Link>
-        </div>
-      </footer>
+      {isHome && (
+        <nav className="home-dock" aria-label="Museum navigation">
+          {navigation.map(({ to, label, icon: Icon, end }) => (
+            <NavLink key={to} to={to} end={end}>
+              <Icon aria-hidden="true" />
+              <span>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      )}
     </div>
   );
 }

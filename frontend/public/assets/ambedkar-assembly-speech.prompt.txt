@@ -1,0 +1,10 @@
+Use case: historical-scene
+Asset type: museum kiosk media viewer
+Primary request: Create a respectful black-and-white archival photograph of Dr. B. R. Ambedkar delivering a formal speech at a podium before an assembly.
+Scene/backdrop: Indian constituent assembly-era hall, seated audience and classical interior receding softly behind.
+Subject: Dr. Ambedkar in suit and round glasses, speaking with measured emphasis at a wooden lectern and period microphone.
+Style/medium: authentic late-1940s press photography, documentary realism, film grain.
+Composition/framing: landscape, speaker centered-left, audience and architecture provide depth, suitable for a wide media player.
+Lighting/mood: focused, historic, consequential.
+Color palette: monochrome with subtle warm silver-gelatin tone.
+Constraints: no text, no logo, no watermark, no modern objects.

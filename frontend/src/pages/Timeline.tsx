@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { listTimelineEvents } from '../api/timeline';
+import { isApiConfigured } from '../api/client';
 import type { TimelineEvent } from '../api/types';
 
-const TIMELINE_IMAGE = 'https://lh3.googleusercontent.com/aida-public/AB6AXuApw9xfFLbSuO-m2e067NBqW-sW7nZvx3d8ubAamnrKA3yiLRrNxxvluv3IxUWGok5eaCjVIGPpIkKgoAGsgmtI9jrP9JL8UR1m0W6Q1L_uDQUWlBOwo8xhJYnRFn5SlGeSJqV6ClHMNvz-lponNTo7nI83omb2T7Ofj088OyhPKcCDjMgd_p9M8CP15ZdZB9HHu4COcIp7KcUnXzOWUGCedXrYte1sDvxByfhWj3kMjpBFZNpQSarn';
+const TIMELINE_IMAGE = '/assets/ambedkar-portrait.png';
 
 const fallback: TimelineEvent[] = [
   { event_id: '1891-birth', date: '1891', title: 'Birth in Mhow', description: 'Bhimrao Ramji Ambedkar was born on 14 April in Mhow, in present-day Madhya Pradesh.', image: '', verification_status: 'Verified', related_archive_items: [] },
@@ -18,7 +19,7 @@ const fallback: TimelineEvent[] = [
 export function Timeline() {
   const [events, setEvents] = useState<TimelineEvent[]>(fallback);
   const [selected, setSelected] = useState(0);
-  useEffect(() => { listTimelineEvents().then(data => data.length && setEvents(data)).catch(() => undefined); }, []);
+  useEffect(() => { if (isApiConfigured()) listTimelineEvents().then(data => data.length && setEvents(data)).catch(() => undefined); }, []);
   const event = events[selected] || fallback[0];
 
   return (

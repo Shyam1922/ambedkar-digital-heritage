@@ -1,0 +1,9 @@
+Use case: historical-scene
+Asset type: museum kiosk hero image
+Primary request: Create a dignified black-and-white editorial portrait of Dr. B. R. Ambedkar for an Indian digital heritage archive.
+Subject: Dr. B. R. Ambedkar in a formal suit and round glasses, seated in a scholarly pose, historically respectful and recognizable.
+Style/medium: authentic mid-20th-century archival photography, fine film grain, high tonal range.
+Composition/framing: vertical three-quarter portrait, subject slightly right of center, generous dark neutral background and open space on the left for interface copy.
+Lighting/mood: soft museum-grade directional light, solemn, intelligent, authoritative.
+Color palette: monochrome with a very subtle warm sepia cast.
+Constraints: no text, no logo, no watermark, no modern objects, no decorative border.

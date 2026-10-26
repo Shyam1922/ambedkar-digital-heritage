@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Search, ShieldCheck } from 'lucide-react';
 import { listArchiveItems } from '../api/archive';
+import { isApiConfigured } from '../api/client';
 import type { ArchiveItem } from '../api/types';
 
-const MANUSCRIPT = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAvbPio4YhdU2INA1fj4D0jISqVH6cXvPsmKBU9Z5gwhe1tC3ho8F2nzEB9EqxMVvXQ1-Q6DCslBFGtDyrCOiunOskAuo05iKygZTttaYqqiXFz4tT9pxR8Y_R1nozsvhaYI9JNUsvMo1lMMARqFDSl8YiugJ27xnLGU-ZMSq6r5e-TCDelTR-viBDYboYOcfJMz8P5GOT1krYBRtHaIibLCjVje3wSZ2vIoveGbmYFZUoaZ1itNinz';
-const SPEECH = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAhIrxwaJvgpWryK1U3DoHwTDUziZXiazNL9NGzwWMv52OW6AAE0D1lE_K-r-Kobsms9IoSCphFYc5PwNQ8E3OEUwC2gkRfZA0UYsTPaKKvXcwu303M9gg5flhuRpplsYrX7falg4UsAtd98d2JfiXFBlKy0D3tbtmDaHBDZ3ew74-xWLJJz1JEby3QIQUi16OB1ZJ01iThwSmtvlabbL72hRzcE2d0dk1l4Nq658S9otsU5v8UZ5g5';
+const MANUSCRIPT = '/assets/annihilation-manuscript.png';
+const SPEECH = '/assets/ambedkar-assembly-speech.png';
 
 const fallback: ArchiveItem[] = [
   { archive_id: 'WR-1936-01', title: 'Annihilation of Caste', description: 'The undelivered 1936 address examining caste, religious authority, and the conditions required for social reform.', type: 'Writing', date: '1936', author_speaker: 'Dr. B. R. Ambedkar', language: 'English', source: 'Writings and Speeches', source_url: '', tags: ['Caste', 'Equality'], verification_status: 'Authenticated' },
@@ -20,6 +21,7 @@ export function Archive() {
   const [filter, setFilter] = useState('All');
 
   useEffect(() => {
+    if (!isApiConfigured()) return;
     listArchiveItems('', '').then(data => data.items.length && setItems(data.items)).catch(() => undefined);
   }, []);
 

@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Bot, Compass, Landmark, Search, Send, Users } from 'lucide-react';
 import { askArchive, askDocument } from '../api/research';
+import { isApiConfigured } from '../api/client';
 import type { ResearchResponse } from '../api/types';
 
 const suggestions = [
@@ -29,6 +30,14 @@ export function Research() {
 
   const ask = async (value: string) => {
     if (!value.trim()) return;
+    if (!isApiConfigured()) {
+      setResponse({
+        ...initialAnswer,
+        answer: `This demonstration is running with its curated local archive. Your question — “${value.trim()}” — would be sent to the grounded research service when VITE_API_BASE_URL is configured. The synthesis below demonstrates the citation-first response format using verified collection records.`,
+      });
+      setError('');
+      return;
+    }
     setLoading(true); setError('');
     try { setResponse(documentId ? await askDocument(documentId, value, 5) : await askArchive(value, 5)); }
     catch { setError('The live research service is unavailable. The verified demonstration answer remains visible below.'); }

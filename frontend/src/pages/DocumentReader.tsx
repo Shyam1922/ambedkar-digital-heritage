@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, MessageCircle, Minus, Plus } from 'lucide-react';
 import { getArchiveItem, getDocumentPage } from '../api/archive';
+import { isApiConfigured } from '../api/client';
 import type { ArchiveItem, DocumentPage } from '../api/types';
 
-const SCAN = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAvbPio4YhdU2INA1fj4D0jISqVH6cXvPsmKBU9Z5gwhe1tC3ho8F2nzEB9EqxMVvXQ1-Q6DCslBFGtDyrCOiunOskAuo05iKygZTttaYqqiXFz4tT9pxR8Y_R1nozsvhaYI9JNUsvMo1lMMARqFDSl8YiugJ27xnLGU-ZMSq6r5e-TCDelTR-viBDYboYOcfJMz8P5GOT1krYBRtHaIibLCjVje3wSZ2vIoveGbmYFZUoaZ1itNinz';
+const SCAN = '/assets/annihilation-manuscript.png';
 const fallbackItem: ArchiveItem = { archive_id: 'WR-1936-01', title: 'Annihilation of Caste', description: 'The undelivered 1936 address.', type: 'Writing', date: '1936', author_speaker: 'Dr. B. R. Ambedkar', language: 'English', source: 'Writings and Speeches', source_url: '', tags: ['Caste', 'Social reform'], verification_status: 'Authenticated' };
 
 export function DocumentReader() {
@@ -15,8 +16,11 @@ export function DocumentReader() {
   const [pageData, setPageData] = useState<DocumentPage | null>(null);
   const [zoom, setZoom] = useState(1);
 
-  useEffect(() => { getArchiveItem(id).then(setItem).catch(() => undefined); }, [id]);
-  useEffect(() => { setParams({ page: String(page) }, { replace: true }); getDocumentPage(id, page).then(setPageData).catch(() => setPageData(null)); }, [id, page, setParams]);
+  useEffect(() => { if (isApiConfigured()) getArchiveItem(id).then(setItem).catch(() => undefined); }, [id]);
+  useEffect(() => {
+    setParams({ page: String(page) }, { replace: true });
+    if (isApiConfigured()) getDocumentPage(id, page).then(setPageData).catch(() => setPageData(null));
+  }, [id, page, setParams]);
 
   const transcript = pageData?.text || item.extracted_text || 'The path of social reform, like the path to heaven, is strewn with many difficulties. Caste is not merely a division of labour; it is also a division of labourers. A democratic society must assure every person the freedom to develop their capacities and participate as an equal.';
   const total = pageData?.total_pages || 68;

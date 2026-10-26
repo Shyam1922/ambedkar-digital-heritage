@@ -2,15 +2,16 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, Calendar, Languages, MessageCircle, ShieldCheck, UserRound } from 'lucide-react';
 import { getArchiveItem } from '../api/archive';
+import { isApiConfigured } from '../api/client';
 import type { ArchiveItem } from '../api/types';
 
-const SCAN = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAvbPio4YhdU2INA1fj4D0jISqVH6cXvPsmKBU9Z5gwhe1tC3ho8F2nzEB9EqxMVvXQ1-Q6DCslBFGtDyrCOiunOskAuo05iKygZTttaYqqiXFz4tT9pxR8Y_R1nozsvhaYI9JNUsvMo1lMMARqFDSl8YiugJ27xnLGU-ZMSq6r5e-TCDelTR-viBDYboYOcfJMz8P5GOT1krYBRtHaIibLCjVje3wSZ2vIoveGbmYFZUoaZ1itNinz';
+const SCAN = '/assets/annihilation-manuscript.png';
 const fallback: ArchiveItem = { archive_id: 'WR-1936-01', title: 'Annihilation of Caste', description: 'The undelivered 1936 address examining caste, religious authority, and the conditions required for social reform.', short_summary: 'A foundational critique of caste and a sustained argument for liberty, equality, and fraternity as social principles.', type: 'Writing', date: '1936', author_speaker: 'Dr. B. R. Ambedkar', language: 'English', source: 'Dr. Babasaheb Ambedkar: Writings and Speeches', source_url: '', tags: ['Caste', 'Social reform', 'Equality'], verification_status: 'Authenticated' };
 
 export function ArchiveDetail() {
   const { id = fallback.archive_id } = useParams();
   const [item, setItem] = useState<ArchiveItem>(fallback);
-  useEffect(() => { getArchiveItem(id).then(setItem).catch(() => undefined); }, [id]);
+  useEffect(() => { if (isApiConfigured()) getArchiveItem(id).then(setItem).catch(() => undefined); }, [id]);
   return (
     <section className="record-page">
       <Link className="record-back" to="/archive"><ArrowLeft /> Return to archive</Link>

@@ -1,0 +1,10 @@
+Use case: historical-scene
+Asset type: archive browser and document reader imagery
+Primary request: Create a museum-quality top-down photograph of an aged 1930s typed manuscript page representing a working draft of Annihilation of Caste.
+Scene/backdrop: neutral archival table with a cream paper document.
+Subject: one historical typed manuscript page with natural edge wear, faint editorial pencil marks, and period-correct typewriter texture.
+Style/medium: photorealistic conservation photography, flat even lighting, highly tactile paper fibers.
+Composition/framing: centered portrait document, full page visible, no hands.
+Lighting/mood: quiet, scholarly, preserved.
+Color palette: parchment cream, graphite gray, faded blue annotations.
+Constraints: text need not be readable; no contemporary branding, no watermark, no decorative props.
